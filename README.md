@@ -1,4 +1,4 @@
-# Modular
+# Payloads
 1. Swappable payload bays
 - Cameras
 - LiDAR
