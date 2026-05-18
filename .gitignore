@@ -1,1 +1,6 @@
 .DS_Store
+
+# software
+build/
+build.ninja
+compile_flags.txt
