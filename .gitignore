@@ -1,6 +1,15 @@
 .DS_Store
 
+# hardware
+# digikey
+.history
+_restore_backup*
+*kicad_sch.lck
+
 # software
 build/
 build.ninja
 compile_flags.txt
+
+# resources
+docs/img

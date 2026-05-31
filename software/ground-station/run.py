@@ -20,14 +20,14 @@ OBJ_OUT = BUILD_DIR / "obj"
 
 SRC_DIR = Path("src")
 
-LIBS = "sdl3 cglm"
+LIBS = "sdl3"
 CC = os.getenv("CC", "clang")
 PLATFORM = "linux" if sys.platform.startswith("linux") else sys.platform # linux, win32, darwin
 
 CFLAGS = [
-    "-std=c17",
+    "-std=c++17",
     "-Iinclude"
-    "-I./"
+    " -I./"
 ]
 
 LDFLAGS = [
@@ -99,7 +99,7 @@ if __name__ == "__main__":
             write_ninja()
             write_compile_flags()
             subprocess.run(["ninja", "-j4"])
-            subprocess.run(["./build/Tux-Ultimate"])
+            subprocess.run([f"{BUILD_DIR}/{BINARY}"])
         case "clean":
             if BUILD_DIR.exists():
                 shutil.rmtree(BUILD_DIR)
@@ -107,3 +107,4 @@ if __name__ == "__main__":
                 Path("compile_flags.txt").unlink()
             if Path("build.ninja").exists():
                 Path("build.ninja").unlink()
+
