@@ -21,17 +21,17 @@ OBJ_OUT = BUILD_DIR / "obj"
 SRC_DIR = Path("src")
 
 LIBS = "sdl3"
-CC = os.getenv("CC", "clang")
+CC = os.getenv("CXX", "clang++")
 PLATFORM = "linux" if sys.platform.startswith("linux") else sys.platform # linux, win32, darwin
 
 CFLAGS = [
-    "-std=c++17",
-    "-Iinclude"
-    " -I./"
+    "-std=c++23",
+    "-Iinclude",
+    " -I./",
 ]
 
 LDFLAGS = [
-    "-lm"
+    "-lm",
 ]
 
 CFLAGS  += subprocess.run(['pkg-config', '--cflags', LIBS], capture_output=True, text=True).stdout.split()
@@ -82,6 +82,7 @@ def write_compile_flags():
     flags = CFLAGS if isinstance(CFLAGS, list) else CFLAGS.split()
     with open("compile_flags.txt", "w") as f:
         f.write("\n".join(flags))
+        f.write("\n-x\n c++-header")
 
 if __name__ == "__main__":
     cmd = sys.argv[1] if len(sys.argv) > 1 else "debug"
@@ -107,4 +108,13 @@ if __name__ == "__main__":
                 Path("compile_flags.txt").unlink()
             if Path("build.ninja").exists():
                 Path("build.ninja").unlink()
+        case _:
+            print("default debug build")
+
+            CFLAGS += [ "-g", "-O0", "-Wall", "-Wextra", "-DDEBUG" ] 
+            write_ninja()
+            write_compile_flags()
+            subprocess.run(["ninja", "-j4"])
+            subprocess.run([f"{BUILD_DIR}/{BINARY}"])
+
 
