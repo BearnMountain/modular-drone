@@ -9,7 +9,7 @@
 
 enum class LogCode : uint16_t {
 	// -- Generic --
-	NONE            = 0,    // not an error, won't emit an error code line
+	NONE = 0,
 
 	// -- System / OS  (1xx) --
 	FILE_NOT_FOUND    = 101,
@@ -49,103 +49,33 @@ constexpr const char* INFO_CLR  = "\033[38;5;75m";
 constexpr const char* WARN_CLR  = "\033[38;5;178m";
 constexpr const char* ERROR_CLR = "\033[38;5;203m";
 constexpr const char* DEBUG_CLR = "\033[38;5;71m";
-// constexpr const char* FATAL_CLR   = "\033[38;5;168m"; // not right now
+constexpr const char* FATAL_CLR = "\033[38;5;168m";
+
+#define GENERATE_LOG_FUNCTION(name, level_str, color)                          \
+    template<typename... Args>                                                 \
+    inline void name(std::format_string<Args...> fmt, Args&&... args) {        \
+        auto now = std::chrono::system_clock::now();                           \
+        auto days_dp = std::chrono::floor<std::chrono::days>(now);             \
+        auto duration_since_midnight =                                         \
+            std::chrono::floor<std::chrono::seconds>(now - days_dp);           \
+        std::chrono::hh_mm_ss hms{duration_since_midnight};                    \
+        constexpr int pad = 5 - std::string_view(level_str).size();            \
+        std::println(stderr,                                                   \
+            "{}{}{} [{}{}{}]{} {}",                                            \
+            TIME_CLR, hms, RESET_CLR,                                         \
+            color, level_str, RESET_CLR,                                       \
+            std::string(pad, ' '),                                             \
+            std::format(fmt, std::forward<Args>(args)...)                      \
+        );                                                                     \
+    }
 
 namespace Log {
-	// all logging types should be:
-	// 	- 5 spaces
 
-	inline void info(const std::string& message) {
-		// time
-		auto now = std::chrono::system_clock::now();
-		auto days_dp = std::chrono::floor<std::chrono::days>(now);
-		auto duration_since_midnight = std::chrono::floor<std::chrono::seconds>(now - days_dp);
-		std::chrono::hh_mm_ss hms{duration_since_midnight};
-
-		std::println(stderr,
-			"{}{}{} [{}{}{}]  {}",
-			TIME_CLR,
-			hms, // formatted time
-			RESET_CLR,
-
-			INFO_CLR,
-			"INFO",
-			RESET_CLR,
-
-			message
-		);
-	}
-
-	inline void warn(const std::string& message) {
-		// time
-		auto now = std::chrono::system_clock::now();
-		auto days_dp = std::chrono::floor<std::chrono::days>(now);
-		auto duration_since_midnight = std::chrono::floor<std::chrono::seconds>(now - days_dp);
-		std::chrono::hh_mm_ss hms{duration_since_midnight};
-
-		std::println(stderr,
-			"{}{}{} [{}{}{}]  {}",
-			TIME_CLR,
-			hms, // formatted time
-			RESET_CLR,
-
-			WARN_CLR,
-			"WARN",
-			RESET_CLR,
-
-			message
-		);
-	}
-	inline void error(const std::string& message) {
-		// time
-		auto now = std::chrono::system_clock::now();
-		auto days_dp = std::chrono::floor<std::chrono::days>(now);
-		auto duration_since_midnight = std::chrono::floor<std::chrono::seconds>(now - days_dp);
-		std::chrono::hh_mm_ss hms{duration_since_midnight};
-
-		std::println(stderr,
-			"{}{}{} [{}{}{}] {}",
-			TIME_CLR,
-			hms, // formatted time
-			RESET_CLR,
-
-			ERROR_CLR,
-			"ERROR",
-			RESET_CLR,
-
-			message
-		);
-	}
-
-
-	inline void debug(const std::string& message) {
-		// time
-		auto now = std::chrono::system_clock::now();
-		auto days_dp = std::chrono::floor<std::chrono::days>(now);
-		auto duration_since_midnight = std::chrono::floor<std::chrono::seconds>(now - days_dp);
-		std::chrono::hh_mm_ss hms{duration_since_midnight};
-
-		std::println(stderr,
-			"{}{}{} [{}{}{}] {}",
-			TIME_CLR,
-			hms, // formatted time
-			RESET_CLR,
-
-			DEBUG_CLR,
-			"DEBUG",
-			RESET_CLR,
-
-			message
-		);
-	}
-
-	// should crash program
-	inline void fatal(const std::string& message) {
-
-		(void)message;
-		printf("wtf why it crashing though");
-
-	}
+	GENERATE_LOG_FUNCTION(warn,  "WARN",  WARN_CLR)
+    GENERATE_LOG_FUNCTION(info,  "INFO",  INFO_CLR)
+    GENERATE_LOG_FUNCTION(debug, "DEBUG", DEBUG_CLR)
+    GENERATE_LOG_FUNCTION(error, "ERROR", ERROR_CLR)
+    GENERATE_LOG_FUNCTION(fatal, "FATAL", FATAL_CLR)
 
 	// inline std::string_view error_code_name(ErrorCode code) {
 	// 	static std::string_view storage;
@@ -180,3 +110,5 @@ namespace Log {
 	// }
 
 };
+
+#undef GENERATE_LOG_FUNCTION
