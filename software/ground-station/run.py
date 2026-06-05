@@ -27,6 +27,7 @@ PLATFORM = "linux" if sys.platform.startswith("linux") else sys.platform # linux
 CFLAGS = [
     "-std=c++23",
     "-Iinclude",
+    "-Ilib",
     " -I./",
 ]
 
@@ -37,9 +38,18 @@ LDFLAGS = [
 CFLAGS  += subprocess.run(['pkg-config', '--cflags', LIBS], capture_output=True, text=True).stdout.split()
 LDFLAGS += subprocess.run(['pkg-config',   '--libs', LIBS], capture_output=True, text=True).stdout.split()
 
+# lib compilation
+
+
 def write_ninja():
     # finds all compiled and to be compiled files for ninja
     src_files = list(SRC_DIR.rglob("*.cpp"))
+    mm_files  = list(SRC_DIR.rglob("*.mm")) if PLATFORM == "darwin" else []
+
+    lib_cpp = list(Path("lib").rglob("*.cpp"))
+    lib_mm  = list(Path("lib").rglob("*.mm")) if PLATFORM == "darwin" else []
+
+    objcxx_flags = [f for f in CFLAGS if not f.startswith("-std=")] + ["-fobjc-arc"]
 
     with open("build.ninja", "w") as ninja:
         # ninja rules
@@ -48,12 +58,17 @@ def write_ninja():
             f"\n"
             f"cc = {CC}\n"
             f"cflags = {" ".join(CFLAGS)}\n"
+            f"objcxxflags = {' '.join(objcxx_flags)}\n"
             f"ldflags = {" ".join(LDFLAGS)}\n"
             f"builddir = {BUILD_DIR}\n"
             f"\n"
             f"rule cc\n" # compilation rule
             f"  command = $cc $cflags -c $in -o $out\n"
             f"  description = CC $in\n"
+            f"\n"
+            f"rule objcxx\n"
+            f"  command = $cc -x objective-c++ $objcxxflags -c $in -o $out\n"
+            f"  description = OBJCXX $in\n"
             f"\n"
             f"rule link\n" # linking objs
             f"  command = $cc $in -o $out $ldflags\n"
@@ -69,6 +84,27 @@ def write_ninja():
                     f"build {object_file}: cc {src}\n"
             )
             obj_out.append(object_file)
+
+        for src in mm_files:
+            obj = OBJ_OUT / (src.stem + ".o")
+            ninja.write(f"build {obj}: objcxx {src}\n")
+            obj_out.append(obj)
+
+        # lib includes
+        for src in lib_cpp:
+            # e.g. lib/imgui/imgui.o, lib/imgui/backends/imgui_impl_sdl3.o
+            rel = src.relative_to("lib")
+            obj = OBJ_OUT / "lib" / rel.with_suffix(".o")
+            obj.parent.mkdir(parents=True, exist_ok=True)
+            ninja.write(f"build {obj}: cc {src}\n")
+            obj_out.append(obj)
+
+        for src in lib_mm:
+            rel = src.relative_to("lib")
+            obj = OBJ_OUT / "lib" / rel.with_suffix(".o")
+            obj.parent.mkdir(parents=True, exist_ok=True)
+            ninja.write(f"build {obj}: objcxx {src}\n")
+            obj_out.append(obj)
 
         # linking everything together
         ninja.write(

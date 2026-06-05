@@ -1,3 +1,0 @@
-[submodule "software/ground-station/lib/imgui"]
-	path = software/ground-station/lib/imgui
-	url = https://github.com/ocornut/imgui.git
