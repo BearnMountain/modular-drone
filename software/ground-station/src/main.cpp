@@ -1,3 +1,4 @@
+#include "src/gui/gui.h"
 #define SDL_MAIN_USE_CALLBACKS
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
@@ -7,12 +8,21 @@
 #include "util/defines.h"
 #include "util/logger.h"
 
-class GroundStation {
-public:
-    bool init();
-    void update();
-    void handleEvent(const SDL_Event& event);
-    void cleanUp();
+// class GroundStation {
+// public:
+//     // bool init();
+//     // void update();
+//     // void handleEvent(const SDL_Event& event);
+//     // void cleanUp();
+// 	void init();
+//
+// 	inline const GUI* getGUI(void) const { return gui; }
+// private: 
+// 	GUI* gui;
+// };
+
+struct AppData {
+	GUI* gui;
 };
 
 static SDL_Window* window;
@@ -32,6 +42,15 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
 	
 	// window configurations
 	SDL_RaiseWindow(window);
+	
+	AppData* app_data = new AppData();
+	if (!app_data) {
+		return SDL_APP_FAILURE;
+	}
+
+	app_data->gui = new GUI(window);
+	*appstate = app_data;
+
 
     // GroundStation* app = new GroundStation();
     // if (!app->init()) {
@@ -44,8 +63,8 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
 
 SDL_AppResult SDL_AppIterate(void* appstate) {
 	(void)appstate;
-    // auto* app = static_cast<GroundStation*>(appstate);
-    // app->update();
+    AppData* app = static_cast<AppData*>(appstate);
+	app->gui->draw();
     return SDL_APP_CONTINUE;
 }
 
@@ -70,11 +89,10 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event) {
 
 void SDL_AppQuit(void* appstate, SDL_AppResult result) {
 	(void)appstate; (void)result;
-    // auto* app = static_cast<GroundStation*>(appstate);
-    // if (app) {
-    //     app->cleanUp();;
-    //     delete app;
-    // }
+
+	AppData* app_data = static_cast<AppData*>(appstate);
+    delete app_data->gui;
+	delete app_data;
 
 	SDL_DestroyWindow(window);
 	SDL_Quit();
