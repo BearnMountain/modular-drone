@@ -29,13 +29,8 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
 		Log::fatal("failed to create window instance");
 		return SDL_APP_FAILURE;
 	}
-
-	Log::fatal("test");
-	Log::debug("test");
-	Log::info("test");
-	Log::error("test");
-	Log::warn("test");
-
+	
+	// window configurations
 	SDL_RaiseWindow(window);
 
     // GroundStation* app = new GroundStation();

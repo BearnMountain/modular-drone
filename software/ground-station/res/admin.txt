@@ -1,0 +1,5 @@
+# admin file for loading app presets, please DONT CHANGE
+config_path_macos "~/.config/modular-drone-app/config"
+config_path_windows ""
+config_path_linux ""
+
