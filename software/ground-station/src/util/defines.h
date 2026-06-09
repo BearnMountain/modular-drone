@@ -12,4 +12,9 @@ typedef int8_t   i8;
 typedef float	 f32;
 typedef double 	 f64;
 
+template <typename T>
+constexpr T CLAMP(T v, T lo, T hi) {
+    return v < lo ? lo : (v > hi ? hi : v);
+}
+
 #endif

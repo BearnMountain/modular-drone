@@ -24,6 +24,10 @@ MTLRenderPassDescriptor* pass;
 
 bool InitFromSDL3(SDL_Window* window, const BackendInitDesc& desc)
 {
+
+	if (s_device) {
+		Shutdown();
+	}
     // 1. Device — create internally if caller didn't provide one
     s_device = desc.device ? desc.device : MTLCreateSystemDefaultDevice();
     if (!s_device) {
@@ -53,8 +57,8 @@ bool InitFromSDL3(SDL_Window* window, const BackendInitDesc& desc)
     if (!ImGui_ImplSDL3_InitForMetal(window))
         return false;
 
-    if (!ImGui_ImplMetal_Init(s_device))  // use s_device, not desc.device
-        return false;
+	if (!ImGui_ImplMetal_Init(s_device))  // use s_device, not desc.device
+		return false; 
 
     return true;
 }
@@ -63,14 +67,16 @@ void NewFrame()
 {
 
     drawable 							 = [s_layer nextDrawable];
+	if (!drawable) return; // skips to prevent issues
+	
     pass 								 = [MTLRenderPassDescriptor renderPassDescriptor];
     pass.colorAttachments[0].texture     = drawable.texture;
     pass.colorAttachments[0].loadAction  = MTLLoadActionClear;
     pass.colorAttachments[0].clearColor  = MTLClearColorMake(0.45, 0.55, 0.60, 1.0);
     pass.colorAttachments[0].storeAction = MTLStoreActionStore;
 
-    ImGui_ImplMetal_NewFrame(pass);
     ImGui_ImplSDL3_NewFrame();
+    ImGui_ImplMetal_NewFrame(pass);
     ImGui::NewFrame();
 }
 

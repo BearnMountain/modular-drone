@@ -93,7 +93,7 @@ def write_ninja():
             f"  description = CC $in\n"
             f"\n"
             f"rule objcxx\n"
-            f"  command = $cc -x objective-c++ $objcxxflags -c $in -o $out\n"
+            f"  command = $cc -x objective-c++ $objcxxflags $cflags -c $in -o $out\n"
             f"  description = OBJCXX $in\n"
             f"\n"
             f"rule link\n" # linking objs

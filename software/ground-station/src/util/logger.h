@@ -6,7 +6,6 @@
 #include <print>
 #include <format>
 #include <chrono>
-
 enum class LogCode : uint16_t {
 	// -- Generic --
 	NONE = 0,
@@ -62,7 +61,7 @@ constexpr const char* FATAL_CLR = "\033[38;5;168m";
         constexpr int pad = 5 - std::string_view(level_str).size();            \
         std::println(stderr,                                                   \
             "{}{}{} [{}{}{}]{} {}",                                            \
-            TIME_CLR, hms, RESET_CLR,                                         \
+            TIME_CLR, hms, RESET_CLR,                                          \
             color, level_str, RESET_CLR,                                       \
             std::string(pad, ' '),                                             \
             std::format(fmt, std::forward<Args>(args)...)                      \
