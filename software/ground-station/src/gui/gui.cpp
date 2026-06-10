@@ -5,8 +5,6 @@
 #include "src/util/defines.h"
 #include "src/util/logger.h"
 
-
-
 GUI::GUI(SDL_Window* window, f32 window_width, f32 window_height) {
 	// setting up imgui
 	Renderer::BackendInitDesc desc;
@@ -121,25 +119,20 @@ void GUI::draw(void) {
 		ImGui::DockBuilderDockWindow(toolbar->get_name(), toolbar_id);
 		ImGui::DockBuilderDockWindow(statusbar->get_name(), statusbar_id);
 
-		// Options: remove tab bars
-		if (ImGuiDockNode* node = ImGui::DockBuilderGetNode(navbar_id))
-			node->LocalFlags |= ImGuiDockNodeFlags_NoTabBar;
-		if (ImGuiDockNode* node = ImGui::DockBuilderGetNode(center_id))
-			node->LocalFlags |= ImGuiDockNodeFlags_NoTabBar;
-		if (ImGuiDockNode* node = ImGui::DockBuilderGetNode(infobar_id))
-			node->LocalFlags |= ImGuiDockNodeFlags_NoTabBar;
-		if (ImGuiDockNode* node = ImGui::DockBuilderGetNode(titlebar_id))
-			node->LocalFlags |= ImGuiDockNodeFlags_NoTabBar;
-		if (ImGuiDockNode* node = ImGui::DockBuilderGetNode(toolbar_id))
-			node->LocalFlags |= ImGuiDockNodeFlags_NoTabBar;
-		if (ImGuiDockNode* node = ImGui::DockBuilderGetNode(statusbar_id))
-			node->LocalFlags |= ImGuiDockNodeFlags_NoTabBar;
+		// Configuring options
+		viewport->configure();
+		navbar->configure();
+		infobar->configure();
+		titlebar->configure();
+		toolbar->configure();
+		statusbar->configure();
 
 		ImGui::DockBuilderFinish(dockspace_id);
 	}
 
 	ImGui::DockSpace(dockspace_id, ImVec2(0, 0), ImGuiDockNodeFlags_None);
 
+	// each panel now renders on its own
 	navbar->draw();
 	viewport->draw();
 	infobar->draw();

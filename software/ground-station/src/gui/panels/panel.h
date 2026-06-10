@@ -2,6 +2,7 @@
 
 #include <string>
 #include <imgui/imgui.h>
+#include <imgui/imgui_internal.h>
 #include "src/util/defines.h"
 #include "src/util/logger.h"
 
@@ -23,8 +24,11 @@ public:
 
     const char* get_name() const { return name_.c_str(); }
 
+	// imgui
 	void set_id(ImGuiID id) { id_ = id; }
 	ImGuiID get_id(void) const { return id_; }
+
+	virtual void configure(void) = 0; // sets panel style
 
 protected:
     std::string name_;

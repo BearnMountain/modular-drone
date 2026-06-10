@@ -11,15 +11,16 @@
 #include "src/gui/panels/titlebar.h"
 #include "src/gui/panels/toolbar.h"
 
-class GUI : Panel {
+class GUI {
 public:
     GUI(SDL_Window* window, f32 window_width, f32 window_height);
     ~GUI();
-    void draw(void) override;
+    void draw(void);
     void event_handler(SDL_Event* event);
 
 private:
 
+	f32 x_, y_, width_, height_;
 	std::unique_ptr<Viewport> viewport;
 	std::unique_ptr<Navbar> navbar;
 	std::unique_ptr<Infobar> infobar;

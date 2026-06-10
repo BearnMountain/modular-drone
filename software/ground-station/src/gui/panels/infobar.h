@@ -6,6 +6,7 @@ class Infobar : public Panel {
 public:
 	Infobar(const std::string name);
 	void draw(void) override;
+	void configure(void) override;
 private:
 
 };

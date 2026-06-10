@@ -14,7 +14,7 @@ import os
 from pathlib import Path
 
 # configuration setup
-BINARY = "Drone-Ground-Station"
+BINARY = "app"
 BUILD_DIR = Path("build")
 OBJ_OUT = BUILD_DIR / "obj"
 
@@ -59,7 +59,8 @@ def write_ninja():
     ]
 
     # removes platform dependent files
-
+    if PLATFORM == "darwin":
+        src_files.remove(Path("./src/assets/image_loader.cpp"))
    
     if PLATFORM == "win32":
         src_files += Path("lib/imgui/imgui_impl_dx12.cpp"),
@@ -149,7 +150,7 @@ if __name__ == "__main__":
             write_ninja()
             write_compile_flags()
             subprocess.run(["ninja", "-j4"])
-            subprocess.run([f"{BUILD_DIR}/{BINARY}"])
+            subprocess.run([f"{BUILD_DIR}/{BINARY}"], cwd=os.path.dirname(os.path.abspath(__file__)))
         case "clean":
             if BUILD_DIR.exists():
                 shutil.rmtree(BUILD_DIR)
@@ -164,6 +165,6 @@ if __name__ == "__main__":
             write_ninja()
             write_compile_flags()
             subprocess.run(["ninja", "-j4"])
-            subprocess.run([f"{BUILD_DIR}/{BINARY}"])
+            subprocess.run([f"{BUILD_DIR}/{BINARY}"], cwd=os.path.dirname(os.path.abspath(__file__)))
 
 

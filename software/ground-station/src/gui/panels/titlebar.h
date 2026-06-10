@@ -9,6 +9,7 @@ public:
 	Titlebar(const std::string name);
 
 	void draw(void) override;
+	void configure(void) override;
 private:
 
 };

@@ -12,6 +12,7 @@ class Viewport : public Panel {
 public:
 	Viewport(const std::string name);
 	void draw(void) override;
+	void configure(void) override;
 private:
 
 };

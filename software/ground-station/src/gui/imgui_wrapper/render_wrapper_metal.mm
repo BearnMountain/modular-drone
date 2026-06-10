@@ -1,6 +1,11 @@
+// TODO: https://github.com/ocornut/imgui/blob/master/examples/example_glfw_metal/main.mm
+// - exampel implementation
+
 // render_wrapper_metal.mm
 #define RENDERER_BACKEND_METAL
 #include "render_wrapper.h"
+
+#include "src/assets/image_loader.h"
 
 #import <Metal/Metal.h>
 #import <QuartzCore/CAMetalLayer.h>
@@ -60,6 +65,7 @@ bool InitFromSDL3(SDL_Window* window, const BackendInitDesc& desc)
 	if (!ImGui_ImplMetal_Init(s_device))  // use s_device, not desc.device
 		return false; 
 
+	g_MetalDevice = s_device;
     return true;
 }
 
