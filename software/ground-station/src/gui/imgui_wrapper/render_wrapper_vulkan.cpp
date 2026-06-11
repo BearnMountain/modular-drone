@@ -1,79 +1,38 @@
-// render_wrapper_vulkan.cpp
-// Compiled only when RENDERER_BACKEND_VULKAN is defined.
-
-#define RENDERER_BACKEND_VULKAN
 #include "render_wrapper.h"
-
-// Pull in the real ImGui backend implementations.
-// Remove these if you compile them as separate translation units.
-#include <imgui/imgui_impl_sdl3.h>
+#include "src/util/logger.h"
 #include <imgui/imgui_impl_vulkan.h>
 
 namespace Renderer {
 
-bool InitFromSDL3(SDL_Window* window, const BackendInitDesc& desc)
-{
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
+struct BackendInitDesc {
+};
 
-    ImGuiIO& io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+bool init_from_SDL3(SDL_Window* window, BackendInitDesc* desc) {
+	(void)window; (void)desc;
 
-    // SDL3 platform layer
-    if (!ImGui_ImplSDL3_InitForVulkan(window))
-        return false;
+	Log::error("Renderer::init_from_SDL3 vulkan version not created yet");
 
-    // Vulkan renderer layer
-    ImGui_ImplVulkan_InitInfo init_info = {};
-    init_info.Instance        = desc.instance;
-    init_info.PhysicalDevice  = desc.physical_device;
-    init_info.Device          = desc.device;
-    init_info.QueueFamily     = desc.queue_family;
-    init_info.Queue           = desc.queue;
-    init_info.DescriptorPool  = desc.descriptor_pool;
-    init_info.RenderPass      = desc.render_pass;
-    init_info.MinImageCount   = desc.min_image_count;
-    init_info.ImageCount      = desc.image_count;
-    init_info.MSAASamples     = desc.msaa_samples;
+	return true;
+}
 
-    if (!ImGui_ImplVulkan_Init(&init_info))
-        return false;
+void new_frame(SDL_Window* window, BackendInitDesc* desc) {
+	(void)window; (void)desc;
+	Log::error("Renderer::new_frame vulkan version not created yet");
+}
 
+void render(BackendInitDesc* desc) {
+	(void)desc;
+	Log::error("Renderer::render vulkan version not created yet");
+}
+
+void shutdown(void) {
+	Log::error("Renderer::shutdown vulkan version not created yet");
+}
+
+bool process_event(const SDL_Event* event) {
+	(void)event;
+	Log::error("Renderer::process_event vulkan version not created yet");
     return true;
-}
-
-void NewFrame()
-{
-    ImGui_ImplVulkan_NewFrame();
-    ImGui_ImplSDL3_NewFrame();
-    ImGui::NewFrame();
-}
-
-void Render()
-{
-	// TODO
-	const FrameContext ctx;
-    ImGui::Render();
-    ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), ctx.command_buffer);
-}
-
-void Shutdown()
-{
-    ImGui_ImplVulkan_Shutdown();
-    ImGui_ImplSDL3_Shutdown();
-    ImGui::DestroyContext();
-}
-
-bool ProcessEvent(const SDL_Event* event)
-{
-    return ImGui_ImplSDL3_ProcessEvent(event);
-}
-
-void RebuildFontAtlas()
-{
-    // Vulkan: upload fonts via a one-shot command buffer.
-    // Caller is responsible for queue idle before/after if needed.
-    ImGui_ImplVulkan_CreateFontsTexture();
 }
 
 } // namespace Renderer

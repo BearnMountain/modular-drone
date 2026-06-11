@@ -7,13 +7,9 @@
 
 GUI::GUI(SDL_Window* window, f32 window_width, f32 window_height) {
 	// setting up imgui
-	Renderer::BackendInitDesc desc;
-	Renderer::InitFromSDL3(window, desc);
-
-	ImGuiIO& io = ImGui::GetIO();
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard |
-		ImGuiConfigFlags_DockingEnable;
-
+	desc = Renderer::alloc_desc();
+	Renderer::init_from_SDL3(window, desc);
+	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_NavEnableKeyboard;
 	ImGui::StyleColorsDark();
 
 	// giving full window parameters
@@ -31,11 +27,12 @@ GUI::GUI(SDL_Window* window, f32 window_width, f32 window_height) {
 }
 
 GUI::~GUI() {
-	Renderer::Shutdown();
+	Renderer::shutdown();
+	Renderer::free_desc(desc);
 }
 
-void GUI::draw(void) {
-    Renderer::NewFrame();
+void GUI::draw(SDL_Window* window) {
+    Renderer::new_frame(window, desc);
 
 	// fullscreen imgui window
 	const ImGuiViewport* full_window_viewport = ImGui::GetMainViewport();
@@ -142,11 +139,11 @@ void GUI::draw(void) {
 
 	ImGui::End();   
 
-	Renderer::Render();
+	Renderer::render(desc);
 }
 
 void GUI::event_handler(SDL_Event* event) {
-    ImGui_ImplSDL3_ProcessEvent(event);
+	Renderer::process_event(event);
     switch (event->type) {
         case SDL_EVENT_KEY_DOWN: {
             switch (event->key.key) {

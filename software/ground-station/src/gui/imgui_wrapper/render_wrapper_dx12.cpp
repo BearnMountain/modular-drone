@@ -1,73 +1,38 @@
-// render_wrapper_dx12.cpp
-// Compiled only when RENDERER_BACKEND_DX12 is defined.
-// Windows only.
-
-#define RENDERER_BACKEND_DX12
 #include "render_wrapper.h"
-
-// Pull in the real ImGui backend implementations.
-// Remove these if you compile them as separate translation units.
-#include <imgui/imgui_impl_sdl3.h>
+#include "src/util/logger.h"
 #include <imgui/imgui_impl_dx12.h>
 
 namespace Renderer {
 
-bool InitFromSDL3(SDL_Window* window, const BackendInitDesc& desc)
-{
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
+struct BackendInitDesc {
+};
 
-    ImGuiIO& io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+bool init_from_SDL3(SDL_Window* window, BackendInitDesc* desc) {
+	(void)window; (void)desc;
 
-    // SDL3 platform layer
-    if (!ImGui_ImplSDL3_InitForD3D(window))
-        return false;
+	Log::error("Renderer::init_from_SDL3 dx12 version not created yet");
 
-    // DX12 renderer layer
-    if (!ImGui_ImplDX12_Init(
-            desc.device,
-            desc.num_frames_in_flight,
-            desc.rtv_format,
-            desc.cbv_srv_heap,
-            desc.font_srv_cpu_handle,
-            desc.font_srv_gpu_handle))
-        return false;
+	return true;
+}
 
+void new_frame(SDL_Window* window, BackendInitDesc* desc) {
+	(void)window; (void)desc;
+	Log::error("Renderer::new_frame dx12 version not created yet");
+}
+
+void render(BackendInitDesc* desc) {
+	(void)desc;
+	Log::error("Renderer::render dx12 version not created yet");
+}
+
+void shutdown(void) {
+	Log::error("Renderer::shutdown dx12 version not created yet");
+}
+
+bool process_event(const SDL_Event* event) {
+	(void)event;
+	Log::error("Renderer::process_event dx12 version not created yet");
     return true;
-}
-
-void NewFrame()
-{
-    ImGui_ImplDX12_NewFrame();
-    ImGui_ImplSDL3_NewFrame();
-    ImGui::NewFrame();
-}
-
-void Render()
-{
-	// TODO
-	const FrameContext ctx;
-    ImGui::Render();
-    ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), ctx.command_list);
-}
-
-void Shutdown()
-{
-    ImGui_ImplDX12_Shutdown();
-    ImGui_ImplSDL3_Shutdown();
-    ImGui::DestroyContext();
-}
-
-bool ProcessEvent(const SDL_Event* event)
-{
-    return ImGui_ImplSDL3_ProcessEvent(event);
-}
-
-void RebuildFontAtlas()
-{
-    ImGui_ImplDX12_InvalidateDeviceObjects();
-    ImGui_ImplDX12_CreateDeviceObjects();
 }
 
 } // namespace Renderer

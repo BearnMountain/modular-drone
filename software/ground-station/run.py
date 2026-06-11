@@ -59,19 +59,19 @@ def write_ninja():
     ]
 
     # removes platform dependent files
-    if PLATFORM == "darwin":
-        src_files.remove(Path("./src/assets/image_loader.cpp"))
-   
+    # if PLATFORM == "darwin":
+    #     src_files.remove(Path("./src/assets/image_loader.cpp"))
+    #
     if PLATFORM == "win32":
         src_files += Path("lib/imgui/imgui_impl_dx12.cpp"),
         src_files.remove(Path("./src/gui/imgui_wrapper/render_wrapper_metal.cpp"))
         src_files.remove(Path("./src/gui/imgui_wrapper/render_wrapper_vulkan.cpp"))
- 
+    
     elif PLATFORM == 'linux':
         src_files += Path("lib/imgui/imgui_impl_vulkan.cpp"),
         src_files.remove(Path("./src/gui/imgui_wrapper/render_wrapper_dx12.cpp"))
         src_files.remove(Path("./src/gui/imgui_wrapper/render_wrapper_metal.cpp"))
- 
+    
     elif PLATFORM == 'darwin':
         src_files.remove(Path("./src/gui/imgui_wrapper/render_wrapper_dx12.cpp"))
         src_files.remove(Path("./src/gui/imgui_wrapper/render_wrapper_vulkan.cpp"))
@@ -142,6 +142,14 @@ if __name__ == "__main__":
     if not os.path.exists(OBJ_OUT):
         os.makedirs(OBJ_OUT)
 
+    # platform dependent
+    if PLATFORM == "darwin":
+        CFLAGS += ["-DRENDERER_BACKEND_METAL"]
+    elif PLATFORM == "linux":
+        CFLAGS += ["-DRENDERER_BACKEND_VULKAN"]
+    elif PLATFORM == "win32":
+        CFLAGS += ["-DRENDERER_BACKEND_DX12"]
+
     match cmd:
         case "release":
             print("no release version yet")
@@ -150,7 +158,7 @@ if __name__ == "__main__":
             write_ninja()
             write_compile_flags()
             subprocess.run(["ninja", "-j4"])
-            subprocess.run([f"{BUILD_DIR}/{BINARY}"], cwd=os.path.dirname(os.path.abspath(__file__)))
+            subprocess.run([f"{BUILD_DIR}/{BINARY}"])
         case "clean":
             if BUILD_DIR.exists():
                 shutil.rmtree(BUILD_DIR)
@@ -165,6 +173,6 @@ if __name__ == "__main__":
             write_ninja()
             write_compile_flags()
             subprocess.run(["ninja", "-j4"])
-            subprocess.run([f"{BUILD_DIR}/{BINARY}"], cwd=os.path.dirname(os.path.abspath(__file__)))
+            subprocess.run([f"{BUILD_DIR}/{BINARY}"])
 
 

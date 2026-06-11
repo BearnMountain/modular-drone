@@ -21,5 +21,5 @@ public:
 	void draw(void) override;
 	void configure(void) override;
 private:
-	ImTextureID icons[ICON_COUNT];
+	// ImTextureID icons[ICON_COUNT];
 };

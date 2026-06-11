@@ -5,12 +5,14 @@
 #include <string>
 #include <system_error>
 #include <fstream>
+#include "defines.h"
+#include "src/util/logger.h"
 
 namespace Config {
 	// CONFIG VARIABLES
 	inline std::string config_file_path;
-	inline uint32_t window_width;
-	inline uint32_t window_height;
+	inline u32 window_width = 800;
+	inline u32 window_height = 500;
 
 	namespace {
         inline std::string trim(std::string_view sv) {
@@ -36,6 +38,8 @@ namespace Config {
 			Log::fatal("admin.txt file was deleted, app cant start");
 			abort();
 		}
+		
+		(void)path;
 		
 		std::string line;
 		std::getline(file, line);

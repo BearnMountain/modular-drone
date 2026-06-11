@@ -1,133 +1,95 @@
-// TODO: https://github.com/ocornut/imgui/blob/master/examples/example_glfw_metal/main.mm
-// - exampel implementation
-
-// render_wrapper_metal.mm
-#define RENDERER_BACKEND_METAL
 #include "render_wrapper.h"
-
-#include "src/assets/image_loader.h"
-
-#import <Metal/Metal.h>
-#import <QuartzCore/CAMetalLayer.h>
-
-// Pull in the real ImGui backend implementations.
-#include <imgui/imgui_impl_sdl3.h>
 #include <imgui/imgui_impl_metal.h>
+#include "src/util/logger.h"
+#include <SDL3/SDL_metal.h>
+#import <Metal/Metal.h>
+#import <QuartzCore/QuartzCore.h>
 
 namespace Renderer {
 
-// We need a way to track the view/layer to fetch the device later for font rebuilding,
-// or you can pass the device into RebuildFontAtlas() from your app state. 
-// Storing the view locally makes the wrapper self-contained.
-static SDL_MetalView g_MetalView = nullptr;
-static id<MTLDevice>         s_device;
-static CAMetalLayer*         s_layer;
-static id<MTLCommandQueue>   s_queue;
-id<CAMetalDrawable> 		 drawable;
+static float clear_color[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 
-MTLRenderPassDescriptor* pass;
+struct BackendInitDesc {
+    CAMetalLayer*               layer;
+    id<MTLCommandQueue>         command_queue;
+    MTLRenderPassDescriptor*    render_pass_descriptor;
+    id<MTLCommandBuffer>        command_buffer;
+    id<MTLRenderCommandEncoder> render_encoder;
+    id<CAMetalDrawable>         drawable;         // fix #5
+};
 
-bool InitFromSDL3(SDL_Window* window, const BackendInitDesc& desc)
-{
-
-	if (s_device) {
-		Shutdown();
-	}
-    // 1. Device — create internally if caller didn't provide one
-    s_device = desc.device ? desc.device : MTLCreateSystemDefaultDevice();
-    if (!s_device) {
-        NSLog(@"ERROR: No Metal device");
-        return false;
-    }
-
-    // 2. Layer — must be set up before ImGui_ImplMetal_Init
-    g_MetalView             = SDL_Metal_CreateView(window);
-    s_layer                 = (__bridge CAMetalLayer*)SDL_Metal_GetLayer(g_MetalView);
-    s_layer.device          = s_device;
-    s_layer.pixelFormat     = MTLPixelFormatBGRA8Unorm;
-    s_layer.framebufferOnly = YES;
-
-    // 3. Command queue
-    s_queue = [s_device newCommandQueue];
-    if (!s_queue) {
-        NSLog(@"ERROR: Failed to create command queue");
-        return false;
-    }
-
-    // 4. ImGui — after device and layer are fully configured
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-
-    if (!ImGui_ImplSDL3_InitForMetal(window))
-        return false;
-
-	if (!ImGui_ImplMetal_Init(s_device))  // use s_device, not desc.device
-		return false; 
-
-	g_MetalDevice = s_device;
-    return true;
+BackendInitDesc* alloc_desc() {
+    return new BackendInitDesc{};
 }
 
-void NewFrame()
-{
+void free_desc(BackendInitDesc* desc) {
+    delete desc;
+}
 
-    drawable 							 = [s_layer nextDrawable];
-	if (!drawable) return; // skips to prevent issues
-	
-    pass 								 = [MTLRenderPassDescriptor renderPassDescriptor];
-    pass.colorAttachments[0].texture     = drawable.texture;
-    pass.colorAttachments[0].loadAction  = MTLLoadActionClear;
-    pass.colorAttachments[0].clearColor  = MTLClearColorMake(0.45, 0.55, 0.60, 1.0);
-    pass.colorAttachments[0].storeAction = MTLStoreActionStore;
+bool init_from_SDL3(SDL_Window* window, BackendInitDesc* desc) {
+    id<MTLDevice> metal_device = MTLCreateSystemDefaultDevice();
+    if (!metal_device) {
+        Log::fatal("failed to create metal device");
+        return false;
+    }
+    SDL_MetalView view = SDL_Metal_CreateView(window);
+    desc->layer = (__bridge CAMetalLayer*)SDL_Metal_GetLayer(view);
+    desc->layer.device = metal_device;
+    desc->layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
+    desc->command_queue = [desc->layer.device newCommandQueue];
+    desc->render_pass_descriptor = [MTLRenderPassDescriptor new];
 
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGui_ImplMetal_Init(desc->layer.device);
+    ImGui_ImplSDL3_InitForMetal(window);
+    return true;                                  // fix #1
+}
+
+void new_frame(SDL_Window* window, BackendInitDesc* desc) {
+    int width, height;
+    SDL_GetWindowSizeInPixels(window, &width, &height);
+    desc->layer.drawableSize = CGSizeMake(width, height);
+
+    desc->drawable     = [desc->layer nextDrawable];                          // fix #5
+    desc->command_buffer = [desc->command_queue commandBuffer];               // fix #2
+
+    desc->render_pass_descriptor.colorAttachments[0].clearColor =
+        MTLClearColorMake(clear_color[0] * clear_color[3],
+                          clear_color[1] * clear_color[3],
+                          clear_color[2] * clear_color[3],
+                          clear_color[3]);
+    desc->render_pass_descriptor.colorAttachments[0].texture     = desc->drawable.texture;
+    desc->render_pass_descriptor.colorAttachments[0].loadAction  = MTLLoadActionClear;
+    desc->render_pass_descriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
+
+    desc->render_encoder = [desc->command_buffer                              // fix #3
+        renderCommandEncoderWithDescriptor:desc->render_pass_descriptor];
+    [desc->render_encoder pushDebugGroup:@"ImGui demo"];                      // fix #4
+
+    ImGui_ImplMetal_NewFrame(desc->render_pass_descriptor);
     ImGui_ImplSDL3_NewFrame();
-    ImGui_ImplMetal_NewFrame(pass);
     ImGui::NewFrame();
 }
 
-void Render()
-{
+void render(BackendInitDesc* desc) {
     ImGui::Render();
-    
-    id<MTLCommandBuffer>        cmd     = [s_queue commandBuffer];
-    id<MTLRenderCommandEncoder> encoder = [cmd renderCommandEncoderWithDescriptor:pass];
-
-    ImGui_ImplMetal_RenderDrawData(ImGui::GetDrawData(), cmd, encoder);
-
-    [encoder endEncoding];
-    [cmd presentDrawable:drawable];
-    [cmd commit];
+    ImDrawData* draw_data = ImGui::GetDrawData();
+    ImGui_ImplMetal_RenderDrawData(draw_data, desc->command_buffer, desc->render_encoder);
+    [desc->render_encoder popDebugGroup];
+    [desc->render_encoder endEncoding];
+    [desc->command_buffer presentDrawable:desc->drawable];                    // fix #5
+    [desc->command_buffer commit];
 }
 
-void Shutdown()
-{
+void shutdown(void) {
     ImGui_ImplMetal_Shutdown();
     ImGui_ImplSDL3_Shutdown();
-    
-    if (g_MetalView) {
-        SDL_Metal_DestroyView(g_MetalView);
-        g_MetalView = nullptr;
-    }
-    
     ImGui::DestroyContext();
 }
 
-bool ProcessEvent(const SDL_Event* event)
-{
+bool process_event(const SDL_Event* event) {
     return ImGui_ImplSDL3_ProcessEvent(event);
-}
-
-// FIX 2: Retrieve the device context from our active layer to rebuild objects
-void RebuildFontAtlas()
-{
-    if (!g_MetalView) return;
-    
-    CAMetalLayer* metal_layer = (__bridge CAMetalLayer*)SDL_Metal_GetLayer(g_MetalView);
-    id<MTLDevice> device = metal_layer.device;
-
-    ImGui_ImplMetal_DestroyDeviceObjects();
-    ImGui_ImplMetal_CreateDeviceObjects(device);
 }
 
 } // namespace Renderer

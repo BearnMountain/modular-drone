@@ -4,6 +4,7 @@
 #include <imgui/imgui.h>
 #include <memory>
 
+#include "src/gui/imgui_wrapper/render_wrapper.h"
 #include "src/gui/panels/viewport.h"
 #include "src/gui/panels/infobar.h"
 #include "src/gui/panels/navbar.h"
@@ -15,7 +16,7 @@ class GUI {
 public:
     GUI(SDL_Window* window, f32 window_width, f32 window_height);
     ~GUI();
-    void draw(void);
+    void draw(SDL_Window* draw);
     void event_handler(SDL_Event* event);
 
 private:
@@ -28,4 +29,5 @@ private:
 	std::unique_ptr<Statusbar> statusbar;
 	std::unique_ptr<Toolbar> toolbar;
 
+	Renderer::BackendInitDesc* desc;
 };
