@@ -1,6 +1,7 @@
 #include "render_wrapper.h"
 #include <imgui/imgui_impl_metal.h>
 #include "src/util/logger.h"
+
 #include <SDL3/SDL_metal.h>
 #import <Metal/Metal.h>
 #import <QuartzCore/QuartzCore.h>

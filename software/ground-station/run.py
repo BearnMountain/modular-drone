@@ -47,7 +47,6 @@ def write_ninja():
     # finds all compiled and to be compiled files for ninja
     src_files = list(SRC_DIR.rglob("*.cpp"))
     mm_files  = list(SRC_DIR.rglob("*.mm")) if PLATFORM == "darwin" else []
-    mm_files += list(LIB_DIR.rglob("*.mm")) if PLATFORM == "darwin" else []
 
     # for imgui lib
     src_files += [
@@ -59,22 +58,20 @@ def write_ninja():
     ]
 
     # removes platform dependent files
-    # if PLATFORM == "darwin":
-    #     src_files.remove(Path("./src/assets/image_loader.cpp"))
-    #
+    # - all platform files should be defined as {*_win32*, *_linux*, *_darwin*}
+    # - same pattern for metal, vulkan, and dx12
     if PLATFORM == "win32":
         src_files += Path("lib/imgui/imgui_impl_dx12.cpp"),
-        src_files.remove(Path("./src/gui/imgui_wrapper/render_wrapper_metal.cpp"))
-        src_files.remove(Path("./src/gui/imgui_wrapper/render_wrapper_vulkan.cpp"))
-    
+        patterns = ("_metal", "_vulkan") 
+        src_files = [p for p in src_files if not any(s in p.name for s in patterns)]
     elif PLATFORM == 'linux':
         src_files += Path("lib/imgui/imgui_impl_vulkan.cpp"),
-        src_files.remove(Path("./src/gui/imgui_wrapper/render_wrapper_dx12.cpp"))
-        src_files.remove(Path("./src/gui/imgui_wrapper/render_wrapper_metal.cpp"))
-    
+        patterns = ("_metal", "_dx12")
+        src_files = [p for p in src_files if not any(s in p.name for s in patterns)]
     elif PLATFORM == 'darwin':
-        src_files.remove(Path("./src/gui/imgui_wrapper/render_wrapper_dx12.cpp"))
-        src_files.remove(Path("./src/gui/imgui_wrapper/render_wrapper_vulkan.cpp"))
+        mm_files += Path("lib/imgui/imgui_impl_metal.mm"),
+        patterns = ("_dx12", "_vulkan")
+        src_files = [p for p in src_files if not any(s in p.name for s in patterns)]
 
     objcxx_flags = [f for f in CFLAGS if not f.startswith("-std=")] + ["-fobjc-arc"]
 
