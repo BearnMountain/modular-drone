@@ -1,3 +1,4 @@
+#include <implot3d/implot3d.h>
 #include "render_wrapper.h"
 #include <imgui/imgui_impl_metal.h>
 #include "src/util/logger.h"
@@ -32,6 +33,7 @@ bool init_from_SDL3(SDL_Window* window, BackendInitDesc* desc) {
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
+	ImPlot3D::CreateContext();
     ImGui_ImplMetal_Init(desc->layer.device);
     ImGui_ImplSDL3_InitForMetal(window);
     return true;                                  // fix #1

@@ -57,6 +57,13 @@ def write_ninja():
         Path("lib/imgui/imgui_widgets.cpp"),
     ]
 
+    # for implot lib
+    src_files += [
+        Path("lib/implot3d/implot3d_meshes.cpp"),
+        Path("lib/implot3d/implot3d_items.cpp"),
+        Path("lib/implot3d/implot3d.cpp"),
+    ]
+
     # removes platform dependent files
     # - all platform files should be defined as {*_win32*, *_linux*, *_darwin*}
     # - same pattern for metal, vulkan, and dx12

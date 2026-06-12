@@ -1,5 +1,7 @@
 #include "widget.h"
 #include "src/assets/image_loader.h"
+#include <implot3d/implot3d.h>
+#include <implot3d/implot3d_internal.h>
 
 void Widget::icon_button(ImTextureID icon, const char* label, ImVec2 size, bool& selected) {
     ImGui::PushID(label);
@@ -87,3 +89,26 @@ void Widget::icon_button(ImTextureID icon, const char* label, ImVec2 size, bool&
 
     ImGui::PopID();
 }
+
+
+void Widget::plot_point_cloud(const f32* xn, const f32* yn, const f32* zn, u32 count) {
+	if (ImPlot3D::BeginPlot("Scatter Plots")) {
+        // ImPlot3D::PlotScatter("Data 1", xn, yn, zn, count);
+        ImPlot3DSpec spec;
+        spec.Marker = ImPlot3DMarker_Square;
+        spec.MarkerSize = 6;
+        spec.MarkerLineColor = ImPlot3D::GetColormapColor(1);
+        spec.MarkerFillColor = ImPlot3D::GetColormapColor(1);
+        spec.FillAlpha = 0.25f;
+        ImPlot3D::PlotScatter("Data 2", xn, yn, zn, count, spec);
+        ImPlot3D::EndPlot();
+    }
+
+}
+
+
+
+
+
+
+

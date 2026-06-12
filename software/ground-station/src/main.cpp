@@ -41,6 +41,8 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
 	SDL_WindowFlags window_flags = SDL_WINDOW_HIDDEN;
 #ifdef RENDERER_BACKEND_METAL
 	window_flags |= SDL_WINDOW_METAL;
+#elif RENDERER_BACKEND_VULKAN
+	window_flags |= SDL_WINDOW_VULKAN;
 #endif
 	app_data->window = SDL_CreateWindow("App", Config::window_width, Config::window_height, window_flags);
 	if (!app_data->window) {

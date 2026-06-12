@@ -4,6 +4,11 @@
 - OpenCV — for the video/image pane.
 - PCL (Point Cloud Library) — for SLAM map rendering if you need a full 3D point cloud pipeline.
 - OGRE3D or bgfx — if you need a more capable render backend than raw SDL.
+## Cross Platform
+- Currently only supports Metal, but will support vulkan and dx12
+- when compiling, choise which backend you want for rendering
+    - Metal: MacOS; Vulkan: Linux; DX12: Windows; however it is 
+    fully interchangeable if you want.
 
 # Testing
 ## Datasets
