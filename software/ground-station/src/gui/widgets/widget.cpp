@@ -1,34 +1,89 @@
 #include "widget.h"
 #include "src/assets/image_loader.h"
 
-bool GuiWidget::icon_button(ImTextureID icon, const char* label, ImVec2 size, bool selected) {
-	(void)icon; (void)label;
-	ImGui::PushID(label);
+void Widget::icon_button(ImTextureID icon, const char* label, ImVec2 size, bool& selected) {
+    ImGui::PushID(label);
 
-	ImGui::InvisibleButton("##button", size);
-	bool hovered = ImGui::IsItemHovered();
-	bool pressed = ImGui::IsItemClicked();
+    // Reserve clickable region
+    ImGui::InvisibleButton("##icon_button", size);
 
-	// predefined stuff
-	ImVec2 pos = ImGui::GetCursorScreenPos();
+    bool hovered = ImGui::IsItemHovered();
+    bool pressed = ImGui::IsItemClicked();
+	selected = pressed;
+
+    // Item bounds
+    ImVec2 min = ImGui::GetItemRectMin();
+    ImVec2 max = ImGui::GetItemRectMax();
+
+    ImDrawList* dl = ImGui::GetWindowDrawList();
+
+    // Colors
+    ImU32 bg =
+        pressed ? IM_COL32(40, 140, 255, 255) :
+        hovered  ? IM_COL32(60, 60, 60, 255) :
+                   IM_COL32(25, 25, 25, 255);
+
     ImU32 border =
-        selected ? IM_COL32(0,170,255,255) :
-        hovered  ? IM_COL32(120,120,120,255) :
-                   IM_COL32(40,40,40,255);
+        selected ? IM_COL32(90, 200, 255, 255) :
+        hovered  ? IM_COL32(150, 150, 150, 255) :
+                   IM_COL32(50, 50, 50, 255);
 
-	// drawing the button with dynamic border
-	ImDrawList* draw_list = ImGui::GetWindowDrawList();
-    draw_list->AddRectFilled( // Background
-        pos, pos + size, IM_COL32(10,10,10,220), 6.0f
-	);
+    // Draw background + border
+    dl->AddRectFilled(min, max, bg, 6.0f);
+    dl->AddRect(min, max, border, 6.0f, 0, 2.0f);
 
-    draw_list->AddRect( // Border
-        pos, pos + size, border, 6.0f, 0, 2.0f
-	);
+    // ----------------------------
+    // Layout inside the button
+    // ----------------------------
 
-	// creating icon
+    float padding = 8.0f;
 
-	ImGui::PopID();
+    ImVec2 content_min = ImVec2(min.x + padding, min.y + padding);
+    ImVec2 content_max = ImVec2(max.x - padding, max.y - padding);
 
-	return pressed;
+    float label_height = ImGui::GetTextLineHeight();
+
+    // Icon area (top)
+    ImVec2 icon_area_min = content_min;
+    ImVec2 icon_area_max = ImVec2(content_max.x, content_max.y - label_height - 4.0f);
+
+    // Center icon
+    ImVec2 icon_size = ImVec2(icon_area_max.x - icon_area_min.x,
+                              icon_area_max.y - icon_area_min.y);
+
+    ImVec2 icon_pos = ImVec2(
+        icon_area_min.x + (icon_size.x * 0.5f),
+        icon_area_min.y + (icon_size.y * 0.5f)
+    );
+
+    // Draw icon (centered)
+    if (icon)
+    {
+        ImVec2 half = ImVec2(24, 24); // icon size (adjust as needed)
+
+        dl->AddImage(
+            icon,
+            ImVec2(icon_pos.x - half.x, icon_pos.y - half.y),
+            ImVec2(icon_pos.x + half.x, icon_pos.y + half.y)
+        );
+    }
+
+    // ----------------------------
+    // Label (bottom centered)
+    // ----------------------------
+    ImVec2 text_size = ImGui::CalcTextSize(label);
+
+    ImVec2 text_pos = ImVec2(
+        min.x + (size.x - text_size.x) * 0.5f,
+        max.y - label_height - 4.0f
+    );
+
+    ImU32 text_col =
+        selected ? IM_COL32(220, 240, 255, 255) :
+        hovered  ? IM_COL32(230, 230, 230, 255) :
+                   IM_COL32(180, 180, 180, 255);
+
+    dl->AddText(text_pos, text_col, label);
+
+    ImGui::PopID();
 }

@@ -1,6 +1,6 @@
 #pragma once
 #include <imgui/imgui.h>
-#include <cstdint>
+#include "src/gui/imgui_wrapper/render_wrapper.h"
 #include "src/util/defines.h"
 #include "src/util/logger.h"
 
@@ -10,6 +10,7 @@ struct Texture {
 	u32 height;
 };
 
-ImTextureID load_imgui_texture(const char* path, u32* width, u32* height);
-void unload_texture(ImTextureID id); // polymorphic unloading
-void cleanup_textures(void); // removes all textures from gpu safely
+void set_backend_desc(Renderer::BackendInitDesc* desc);
+
+Texture load_imgui_texture(const char* path);
+void unload_texture(Texture& id); // polymorphic unloading

@@ -4,14 +4,18 @@
 #include "imgui_wrapper/render_wrapper.h"
 #include "src/util/defines.h"
 #include "src/util/logger.h"
+#include "src/assets/image_loader.h"
 
 GUI::GUI(SDL_Window* window, f32 window_width, f32 window_height) {
 	// setting up imgui
 	desc = Renderer::alloc_desc();
+	set_backend_desc(desc);
+
 	Renderer::init_from_SDL3(window, desc);
 	ImGui::GetIO().ConfigFlags |= 
 		ImGuiConfigFlags_DockingEnable | 
-		ImGuiConfigFlags_NavEnableKeyboard;
+		ImGuiConfigFlags_NavEnableKeyboard |
+		ImGuiBackendFlags_RendererHasVtxOffset;
 	ImGui::StyleColorsDark();
 
 	// giving full window parameters

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "panel.h"
+#include "src/assets/image_loader.h"
 #include <vector>
 
 #define ICON_COUNT 6
@@ -21,5 +22,5 @@ public:
 	void draw(void) override;
 	void configure(void) override;
 private:
-	// ImTextureID icons[ICON_COUNT];
+	Texture icons[ICON_COUNT];
 };

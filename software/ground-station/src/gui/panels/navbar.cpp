@@ -8,26 +8,29 @@ Navbar::Navbar(const std::string name) {
 	name_ = name;
 
 	// loading all icons
-	// icons[0] = load_imgui_texture("res/img/widgets/dashboard.png");
-	// icons[1] = load_imgui_texture("res/img/widgets/info.png");
-	// icons[2] = load_imgui_texture("res/img/widgets/log.png");
-	// icons[3] = load_imgui_texture("res/img/widgets/map.png");
-	// icons[4] = load_imgui_texture("res/img/widgets/settings.png");
-	// icons[5] = load_imgui_texture("res/img/widgets/vehicle.png");
+	icons[0] = load_imgui_texture("res/img/widgets/dashboard.png");
+	icons[1] = load_imgui_texture("res/img/widgets/question.png");
+	icons[2] = load_imgui_texture("res/img/widgets/log.png");
+	icons[3] = load_imgui_texture("res/img/widgets/map.png");
+	icons[4] = load_imgui_texture("res/img/widgets/setting.png");
+	icons[5] = load_imgui_texture("res/img/widgets/drone.png");
 }
 
 Navbar::~Navbar(void) {
-	// free_texture(icons[0]);
-	// free_texture(icons[1]);
-	// free_texture(icons[2]);
-	// free_texture(icons[3]);
-	// free_texture(icons[4]);
-	// free_texture(icons[5]);
+	unload_texture(icons[0]);
+	unload_texture(icons[1]);
+	unload_texture(icons[2]);
+	unload_texture(icons[3]);
+	unload_texture(icons[4]);
+	unload_texture(icons[5]);
 }
 
 void Navbar::draw(void) {
 	ImGui::Begin(name_.c_str());
+	ImVec2 size = ImGui::GetContentRegionAvail(); 
 	ImGui::Text("Navbar");
+	static bool selected = false;
+	Widget::icon_button(icons[0].id, "Dashboard", ImVec2(size.x - 2, size.x - 2), selected);
 	ImGui::End();
 }
 

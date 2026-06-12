@@ -3,21 +3,11 @@
 #include "src/util/logger.h"
 
 #include <SDL3/SDL_metal.h>
-#import <Metal/Metal.h>
-#import <QuartzCore/QuartzCore.h>
+#include "backend_metal_defines.h"
 
 namespace Renderer {
 
 static float clear_color[4] = {0.0f, 0.0f, 0.0f, 1.0f};
-
-struct BackendInitDesc {
-    CAMetalLayer*               layer;
-    id<MTLCommandQueue>         command_queue;
-    MTLRenderPassDescriptor*    render_pass_descriptor;
-    id<MTLCommandBuffer>        command_buffer;
-    id<MTLRenderCommandEncoder> render_encoder;
-    id<CAMetalDrawable>         drawable;         // fix #5
-};
 
 BackendInitDesc* alloc_desc() {
     return new BackendInitDesc{};
