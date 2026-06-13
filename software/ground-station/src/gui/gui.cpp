@@ -86,11 +86,11 @@ void GUI::draw(SDL_Window* window) {
 
 		// Setting space for each panel
 		ImGuiID titlebar_id = ImGui::DockBuilderSplitNode(
-			center_id, ImGuiDir_Up, 0.10f, nullptr, &center_id
+			center_id, ImGuiDir_Up, 0.08f, nullptr, &center_id
 		);
 
 		ImGuiID navbar_id = ImGui::DockBuilderSplitNode(
-			center_id, ImGuiDir_Left, 0.05f, nullptr, &center_id
+			center_id, ImGuiDir_Left, 0.08f, nullptr, &center_id
 		);
 
 		ImGuiID infobar_id = ImGui::DockBuilderSplitNode(

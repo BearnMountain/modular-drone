@@ -78,6 +78,7 @@ void render(BackendInitDesc* desc) {
 void shutdown(void) {
     ImGui_ImplMetal_Shutdown();
     ImGui_ImplSDL3_Shutdown();
+	ImPlot3D::DestroyContext();
     ImGui::DestroyContext();
 }
 

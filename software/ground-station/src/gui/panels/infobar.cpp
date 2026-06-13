@@ -11,8 +11,12 @@ Infobar::Infobar(const std::string name) {
 
 void Infobar::draw(void) {
 	ImGui::Begin(name_.c_str());
-	ImGui::Text("Infobar");
-	// GuiWidget::icon_button(icon, "Dashboard", ImVec2(90,90), true);
+
+
+
+
+
+
 	ImGui::End();
 }
 

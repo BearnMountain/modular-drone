@@ -2,7 +2,6 @@
 #include <imgui/imgui.h>
 #include "src/gui/imgui_wrapper/render_wrapper.h"
 #include "src/util/defines.h"
-#include "src/util/logger.h"
 
 struct Texture {
 	ImTextureID id;

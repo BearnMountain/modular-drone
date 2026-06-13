@@ -2,92 +2,159 @@
 #include "src/assets/image_loader.h"
 #include <implot3d/implot3d.h>
 #include <implot3d/implot3d_internal.h>
+#include "src/util/logger.h"
 
-void Widget::icon_button(ImTextureID icon, const char* label, ImVec2 size, bool& selected) {
-    ImGui::PushID(label);
+#define CORNER_RADIUS 6.0f
 
-    // Reserve clickable region
-    ImGui::InvisibleButton("##icon_button", size);
+bool Widget::icon_button(ImTextureID icon, const char* label, ImVec2 size, bool& selected) {
+	ImGui::PushID(label);
 
-    bool hovered = ImGui::IsItemHovered();
-    bool pressed = ImGui::IsItemClicked();
-	selected = pressed;
 
-    // Item bounds
-    ImVec2 min = ImGui::GetItemRectMin();
-    ImVec2 max = ImGui::GetItemRectMax();
+	// reservers clickable region
+	ImGui::InvisibleButton("##icon_label", size);
 
-    ImDrawList* dl = ImGui::GetWindowDrawList();
+	// config for button itself
+	bool hovered = ImGui::IsItemHovered();
+	bool pressed = ImGui::IsItemClicked();
 
-    // Colors
-    ImU32 bg =
-        pressed ? IM_COL32(40, 140, 255, 255) :
+	if (pressed) {
+		selected = !selected;
+	}
+
+	// color
+	ImU32 background_color = 
+        selected ? IM_COL32(40, 140, 255, 255) :
         hovered  ? IM_COL32(60, 60, 60, 255) :
                    IM_COL32(25, 25, 25, 255);
-
-    ImU32 border =
+	ImU32 border_color = 
         selected ? IM_COL32(90, 200, 255, 255) :
         hovered  ? IM_COL32(150, 150, 150, 255) :
                    IM_COL32(50, 50, 50, 255);
 
-    // Draw background + border
-    dl->AddRectFilled(min, max, bg, 6.0f);
-    dl->AddRect(min, max, border, 6.0f, 0, 2.0f);
+	// drawing ontop of InvisibleButton
+	ImDrawList* draw_list = ImGui::GetWindowDrawList();
+	ImVec2 min = ImGui::GetItemRectMin(); // bound box of parent widget
+	ImVec2 max = ImGui::GetItemRectMax(); // bound box of parent widget
 
-    // ----------------------------
-    // Layout inside the button
-    // ----------------------------
+	// background + border
+	draw_list->AddRectFilled(
+		min, max, background_color, CORNER_RADIUS
+	);
+	draw_list->AddRect(
+		min, max, border_color, CORNER_RADIUS, 1.0f, ImDrawFlags_RoundCornersAll
+	);
 
-    float padding = 8.0f;
+	// layout inside button
+	if (icon && !label) { // with just icon
+		// Format is just icon over hte entire button
+		const float padding = 4.0f;
 
-    ImVec2 content_min = ImVec2(min.x + padding, min.y + padding);
-    ImVec2 content_max = ImVec2(max.x - padding, max.y - padding);
+		// max icon size inside button
+		ImVec2 avail = ImVec2(
+			(max.x - min.x) - padding * 2.0f,
+			(max.y - min.y) - padding * 2.0f
+		);
 
-    float label_height = ImGui::GetTextLineHeight();
+		// keep icon square
+		float icon_size = ImMin(avail.x, avail.y);
+		ImVec2 image_size(icon_size, icon_size);
 
-    // Icon area (top)
-    ImVec2 icon_area_min = content_min;
-    ImVec2 icon_area_max = ImVec2(content_max.x, content_max.y - label_height - 4.0f);
+		// center of the button
+		ImVec2 center = ImVec2(
+			(min.x + max.x) * 0.5f,
+			(min.y + max.y) * 0.5f
+		);
 
-    // Center icon
-    ImVec2 icon_size = ImVec2(icon_area_max.x - icon_area_min.x,
-                              icon_area_max.y - icon_area_min.y);
+		ImVec2 image_min = ImVec2(
+			center.x - image_size.x * 0.5f,
+			center.y - image_size.y * 0.5f
+		);
 
-    ImVec2 icon_pos = ImVec2(
-        icon_area_min.x + (icon_size.x * 0.5f),
-        icon_area_min.y + (icon_size.y * 0.5f)
-    );
+		ImVec2 image_max = ImVec2(
+			image_min.x + image_size.x,
+			image_min.y + image_size.y
+		);
 
-    // Draw icon (centered)
-    if (icon)
-    {
-        ImVec2 half = ImVec2(24, 24); // icon size (adjust as needed)
+		draw_list->AddImage(
+			icon,
+			image_min,
+			image_max
+		);
+	} else if (icon && label) {
+		// sizes
+		float W = max.x - min.x;
+		float H = max.y - min.y;
 
-        dl->AddImage(
-            icon,
-            ImVec2(icon_pos.x - half.x, icon_pos.y - half.y),
-            ImVec2(icon_pos.x + half.x, icon_pos.y + half.y)
-        );
-    }
+		// split
+		float icon_h = H * 0.65f;
 
-    // ----------------------------
-    // Label (bottom centered)
-    // ----------------------------
-    ImVec2 text_size = ImGui::CalcTextSize(label);
+		// --- ICON (centered in top area) ---
+		float icon_size = icon_h * 0.6f;
 
-    ImVec2 text_pos = ImVec2(
-        min.x + (size.x - text_size.x) * 0.5f,
-        max.y - label_height - 4.0f
-    );
+		ImVec2 icon_min(
+			min.x + (W - icon_size) * 0.5f,
+			min.y + (icon_h - icon_size) * 0.5f
+		);
 
-    ImU32 text_col =
-        selected ? IM_COL32(220, 240, 255, 255) :
-        hovered  ? IM_COL32(230, 230, 230, 255) :
-                   IM_COL32(180, 180, 180, 255);
+		ImVec2 icon_max(
+			icon_min.x + icon_size,
+			icon_min.y + icon_size
+		);
 
-    dl->AddText(text_pos, text_col, label);
+		draw_list->AddImage(icon, icon_min, icon_max);
 
-    ImGui::PopID();
+		// --- LABEL ---
+		float label_top    = min.y + icon_h;
+		float label_height = max.y - label_top;
+		float label_width  = max.x - min.x;
+
+		float base_font_size = ImGui::GetFontSize();
+
+		// 1) Scale by HEIGHT
+		float scale_h = label_height / base_font_size;
+
+		// 2) Scale by WIDTH
+		ImVec2 full_text_size = ImGui::CalcTextSize(label);
+		float scale_w = label_width / full_text_size.x;
+
+		// 3) Pick smallest scale
+		float font_scale = ImMin(scale_h, scale_w);
+		font_scale = ImClamp(font_scale, 0.5f, 1.0f);
+
+		float font_size = base_font_size * font_scale;
+
+		// recompute text size with final scale
+		ImVec2 text_size = full_text_size * font_scale;
+
+		// centered inside label area
+		ImVec2 text_pos(
+			min.x + (label_width - text_size.x) * 0.5f,
+			label_top + (label_height - text_size.y) * 0.5f
+		);
+
+		// clip ONLY the label region
+		draw_list->PushClipRect(
+			ImVec2(min.x, label_top),
+			max,
+			true
+		);
+
+		draw_list->AddText(
+			ImGui::GetFont(),
+			font_size,
+			text_pos,
+			IM_COL32(180,180,180,255),
+			label
+		);
+
+		draw_list->PopClipRect();
+	} else {
+		Log::debug("cant create just a button with a label, must have icon or label and icon");
+	}
+
+	ImGui::PopID();
+
+	return pressed;
 }
 
 

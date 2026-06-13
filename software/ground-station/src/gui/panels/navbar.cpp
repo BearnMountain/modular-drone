@@ -1,6 +1,7 @@
 #include "navbar.h"
 #include "src/assets/image_loader.h"
 #include "src/gui/widgets/widget.h"
+#include "src/util/logger.h"
 
 Navbar::Navbar(const std::string name) {
 	Log::debug("navbar initialized");
@@ -9,11 +10,14 @@ Navbar::Navbar(const std::string name) {
 
 	// loading all icons
 	icons[0] = load_imgui_texture("res/img/widgets/dashboard.png");
-	icons[1] = load_imgui_texture("res/img/widgets/question.png");
-	icons[2] = load_imgui_texture("res/img/widgets/log.png");
-	icons[3] = load_imgui_texture("res/img/widgets/map.png");
-	icons[4] = load_imgui_texture("res/img/widgets/setting.png");
-	icons[5] = load_imgui_texture("res/img/widgets/drone.png");
+	icons[1] = load_imgui_texture("res/img/widgets/map.png");
+	icons[2] = load_imgui_texture("res/img/widgets/plan.png");
+	icons[3] = load_imgui_texture("res/img/widgets/drone.png");
+	icons[4] = load_imgui_texture("res/img/widgets/log.png");
+	icons[5] = load_imgui_texture("res/img/widgets/setting.png");
+
+	active[0] = true;
+	for (u32 i = 1; i < ICON_COUNT; i++) active[i] = false;
 }
 
 Navbar::~Navbar(void) {
@@ -27,10 +31,41 @@ Navbar::~Navbar(void) {
 
 void Navbar::draw(void) {
 	ImGui::Begin(name_.c_str());
-	ImVec2 size = ImGui::GetContentRegionAvail(); 
-	ImGui::Text("Navbar");
-	static bool selected = false;
-	Widget::icon_button(icons[0].id, "Dashboard", ImVec2(size.x - 2, size.x - 2), selected);
+
+	constexpr f32 padding = 4.0f;
+	ImVec2 avail = ImGui::GetContentRegionAvail();
+	ImVec2 button_size(avail.x - padding, avail.x - padding);
+
+	// center cursor
+	ImGui::SetCursorPosX(
+		ImGui::GetCursorPosX() + (avail.x - button_size.x) * 0.5f
+	);
+
+	auto toggle_nav = [this](u32 j) {
+		for (u32 i = 0; i < ICON_COUNT; i++) active[i] = false;
+		active[j] = true;
+		nav_change(j);
+		return true;
+	};
+
+	if (Widget::icon_button(icons[0].id, "DASHBOARD", button_size, active[0]))
+		toggle_nav(0);
+	if (Widget::icon_button(icons[1].id, "MAP", 	  button_size, active[1]))
+		toggle_nav(1);
+	if (Widget::icon_button(icons[2].id, "PLAN", 	  button_size, active[2]))
+		toggle_nav(2);
+	if (Widget::icon_button(icons[3].id, "VEHICLE",   button_size, active[3]))
+		toggle_nav(3);
+	if (Widget::icon_button(icons[4].id, "LOGS", 	  button_size, active[4]))
+		toggle_nav(4);
+
+	ImGui::SetCursorPosY(
+		avail.y - button_size.y
+	);
+	if (Widget::icon_button(icons[5].id, "SETTINGS",  button_size, active[5]))
+		toggle_nav(5);
+
+
 	ImGui::End();
 }
 
@@ -46,3 +81,17 @@ void Navbar::configure() {
 	else 
 		Log::error("ImGuiID '{}' doesn't exist(Navbar)", id_);
 }
+
+void Navbar::nav_change(u32 identifier) {
+	switch (identifier) {
+		case 0: Log::debug("Nav now on Dashboard"); break;
+		case 1: Log::debug("Nav now on Map"); break;
+		case 2: Log::debug("Nav now on Plan"); break;
+		case 3: Log::debug("Nav now on Vehicle"); break;
+		case 4: Log::debug("Nav now on Logs"); break;
+		case 5: Log::debug("Nav now on Settings"); break;
+		default: Log::error("Incorrect nav change value"); break;
+	}
+}
+
+
