@@ -1,10 +1,12 @@
-#include <implot3d/implot3d.h>
+#include <implot/implot3d.h>
+#include <implot/implot.h>
 #include "render_wrapper.h"
 #include <imgui/imgui_impl_metal.h>
 #include "src/util/logger.h"
 
 #include <SDL3/SDL_metal.h>
 #include "backend_metal_defines.h"
+
 
 namespace Renderer {
 
@@ -33,6 +35,7 @@ bool init_from_SDL3(SDL_Window* window, BackendInitDesc* desc) {
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
+	ImPlot::CreateContext();
 	ImPlot3D::CreateContext();
     ImGui_ImplMetal_Init(desc->layer.device);
     ImGui_ImplSDL3_InitForMetal(window);
@@ -78,7 +81,8 @@ void render(BackendInitDesc* desc) {
 void shutdown(void) {
     ImGui_ImplMetal_Shutdown();
     ImGui_ImplSDL3_Shutdown();
-	ImPlot3D::DestroyContext();
+	ImPlot3D::CreateContext();
+	ImPlot::CreateContext();
     ImGui::DestroyContext();
 }
 

@@ -7,12 +7,15 @@
 #include <fstream>
 #include "defines.h"
 #include "src/util/logger.h"
+#include <imgui/imgui.h>
 
 namespace Config {
 	// CONFIG VARIABLES
 	inline std::string config_file_path;
 	inline u32 window_width = 800;
 	inline u32 window_height = 500;
+
+	// template colors
 
 	namespace {
         inline std::string trim(std::string_view sv) {

@@ -59,9 +59,11 @@ def write_ninja():
 
     # for implot lib
     src_files += [
-        Path("lib/implot3d/implot3d_meshes.cpp"),
-        Path("lib/implot3d/implot3d_items.cpp"),
-        Path("lib/implot3d/implot3d.cpp"),
+        Path("lib/implot/implot3d_meshes.cpp"),
+        Path("lib/implot/implot3d_items.cpp"),
+        Path("lib/implot/implot3d.cpp"),
+        Path("lib/implot/implot.cpp"),
+        Path("lib/implot/implot_items.cpp"),
     ]
 
     # removes platform dependent files

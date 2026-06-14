@@ -1,26 +1,11 @@
-#include "src/gui/gui.h"
-#include "src/util/config.h"
 #define SDL_MAIN_USE_CALLBACKS
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 
-#include <iostream>
-
-#include "util/defines.h"
 #include "util/logger.h"
 
-// class GroundStation {
-// public:
-//     // bool init();
-//     // void update();
-//     // void handleEvent(const SDL_Event& event);
-//     // void cleanUp();
-// 	void init();
-//
-// 	inline const GUI* getGUI(void) const { return gui; }
-// private: 
-// 	GUI* gui;
-// };
+#include "src/gui/gui.h"
+#include "src/util/config.h"
 
 struct AppData {
 	SDL_Window* window;
@@ -38,7 +23,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
 		return SDL_APP_FAILURE;
 	}
 	
-	SDL_WindowFlags window_flags = SDL_WINDOW_HIDDEN;
+	SDL_WindowFlags window_flags = SDL_WINDOW_HIDDEN | SDL_WINDOW_HIGH_PIXEL_DENSITY;
 #ifdef RENDERER_BACKEND_METAL
 	window_flags |= SDL_WINDOW_METAL;
 #elif RENDERER_BACKEND_VULKAN

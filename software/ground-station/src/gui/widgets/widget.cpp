@@ -1,7 +1,7 @@
 #include "widget.h"
 #include "src/assets/image_loader.h"
-#include <implot3d/implot3d.h>
-#include <implot3d/implot3d_internal.h>
+#include <implot/implot3d.h>
+#include <implot/implot3d_internal.h>
 #include "src/util/logger.h"
 
 #define CORNER_RADIUS 6.0f
@@ -25,7 +25,7 @@ bool Widget::icon_button(ImTextureID icon, const char* label, ImVec2 size, bool&
 	ImU32 background_color = 
         selected ? IM_COL32(40, 140, 255, 255) :
         hovered  ? IM_COL32(60, 60, 60, 255) :
-                   IM_COL32(25, 25, 25, 255);
+                   ImGui::GetColorU32(ImGui::GetStyle().Colors[ImGuiCol_WindowBg]);
 	ImU32 border_color = 
         selected ? IM_COL32(90, 200, 255, 255) :
         hovered  ? IM_COL32(150, 150, 150, 255) :
@@ -40,9 +40,10 @@ bool Widget::icon_button(ImTextureID icon, const char* label, ImVec2 size, bool&
 	draw_list->AddRectFilled(
 		min, max, background_color, CORNER_RADIUS
 	);
-	draw_list->AddRect(
-		min, max, border_color, CORNER_RADIUS, 1.0f, ImDrawFlags_RoundCornersAll
-	);
+	if (selected)
+		draw_list->AddRect(
+			min, max, border_color, CORNER_RADIUS, ImDrawFlags_RoundCornersAll, 1.0f
+		);
 
 	// layout inside button
 	if (icon && !label) { // with just icon

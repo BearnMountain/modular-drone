@@ -12,10 +12,13 @@ GUI::GUI(SDL_Window* window, f32 window_width, f32 window_height) {
 	set_backend_desc(desc);
 
 	Renderer::init_from_SDL3(window, desc);
-	ImGui::GetIO().ConfigFlags |= 
+	ImGuiIO& io = ImGui::GetIO();
+	io.ConfigFlags |= 
 		ImGuiConfigFlags_DockingEnable | 
 		ImGuiConfigFlags_NavEnableKeyboard |
 		ImGuiBackendFlags_RendererHasVtxOffset;
+	io.Fonts->AddFontFromFileTTF("res/fonts/JetBrainsMono-Regular.ttf");
+
 	ImGui::StyleColorsDark();
 
 	// giving full window parameters
