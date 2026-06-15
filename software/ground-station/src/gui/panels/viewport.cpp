@@ -1,4 +1,5 @@
 #include "viewport.h"
+#include "implot/implot.h"
 #include "src/gui/widgets/widget.h"
 #include "src/util/logger.h"
 
@@ -20,7 +21,6 @@ Viewport::~Viewport(void) {
 
 void Viewport::draw(void) {
 	ImGui::Begin(name_.c_str());
-	ImGui::Text("Test");
 
 	// static bool checked = false;
 	// ImGui::Checkbox("checkbox", &checked);

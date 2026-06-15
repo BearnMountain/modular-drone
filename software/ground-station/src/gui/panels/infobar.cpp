@@ -1,9 +1,12 @@
 #include "infobar.h"
+#include "src/gui/widgets/widget.h"
 #include <implot/implot.h>
 #include <implot/implot_internal.h>
 
 Infobar::Infobar(const std::string name) {
 	Log::debug("infobar initialized");
+
+	altitude_.push_back(std::make_pair(1.0f, 2.324f));
 
 	name_ = name;
 }
@@ -13,6 +16,7 @@ void Infobar::draw(void) {
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(padding, padding));
 
 	ImGui::Begin(name_.c_str());
+	f32 window_width = ImGui::GetContentRegionAvail().x;
 	f32 avail_h = ImGui::GetContentRegionAvail().y - ImGui::GetStyle().ItemSpacing.y * 3;
 	f32 vehicle_h = avail_h * 0.2f;
 	f32 telemetry_h = avail_h * 0.5f;
@@ -26,9 +30,9 @@ void Infobar::draw(void) {
 	ImGui::Text("test");
 	ImGui::EndChild();
 
-	ImGui::BeginChild("Telemetry", ImVec2(0, telemetry_h), ImGuiChildFlags_Borders);
-	draw_telemetry();
-	ImGui::EndChild();
+	draw_telemetry(window_width, telemetry_h);
+
+
 
 	ImGui::BeginChild("System Status", ImVec2(0, system_status_h), ImGuiChildFlags_Borders);
 	ImGui::Text("test");
@@ -47,27 +51,89 @@ void draw_vehicle(void) {
 	
 }
 
-void Infobar::draw_telemetry(void) {
+void Infobar::draw_telemetry(u32 win_width, u32 win_height) {
 	// altitude, ground speed, heading, battery, link quality, gps_status
-    static float xs1[1001], ys1[1001];
-    for (int i = 0; i < 1001; ++i) {
-        xs1[i] = i * 0.001f;
-        ys1[i] = 0.5f + 0.5f * sinf(50 * (xs1[i] + (float)ImGui::GetTime() / 10));
-    }
-    static double xs2[20], ys2[20];
-    for (int i = 0; i < 20; ++i) {
-        xs2[i] = i * 1/19.0f;
-        ys2[i] = xs2[i] * xs2[i];
-    }
-    if (ImPlot::BeginPlot("Line Plots")) {
-        ImPlot::SetupAxes("x","y");
-        ImPlot::PlotLine("f(x)", xs1, ys1, 1001);
-        ImPlot::PlotLine("g(x)", xs2, ys2, 20,{
-            ImPlotProp_Marker, ImPlotMarker_Circle,
-            ImPlotProp_Flags, ImPlotLineFlags_Segments
-        });
-        ImPlot::EndPlot();
-    }
+	f32 rounding = 12.0f; // Radius of the corners
+	ImU32 borderColor = IM_COL32(255, 255, 255, 255); // RGBA Border color
+	float borderThickness = 1.0f;
+
+	if (ImGui::BeginTable("RoundedTable", 1, ImGuiTableFlags_BordersInner | ImGuiTableFlags_RowBg, ImVec2(0, win_height))) {
+		ImDrawList* drawList = ImGui::GetWindowDrawList();
+
+		// creating the bold header background
+		ImVec2 pos = ImGui::GetCursorScreenPos();
+		ImRect header(pos, ImVec2(pos.x + win_width, pos.y + 45.0f));
+		ImGui::ItemSize(header);
+		if (!ImGui::ItemAdd(header, 0))
+			return;
+		drawList->AddRectFilled(header.Min, header.Max, IM_COL32(14, 18, 25, 255), 12.0f, ImDrawFlags_RoundCornersTop);
+
+		ImGui::TableNextRow(ImGuiTableRowFlags_None, 45.0f);
+		ImGui::TableNextColumn();
+		ImGui::Text(" Telemetry");
+		ImGui::TableNextRow();
+		ImGui::TableNextColumn();
+		ImVec2 start = ImGui::GetCursorPos();
+		ImGui::TextUnformatted(" Altitude");
+		ImGui::Text(" %.1f m/s", static_cast<double>(altitude_.front().second));
+
+		// ----- RIGHT: graph -----
+		float graph_width = 140.0f;   // or dynamic
+
+		// Move cursor to the right, same row
+		ImGui::SetCursorPos(ImVec2(
+			start.x + ImGui::GetContentRegionAvail().x - graph_width,
+			start.y
+		));
+		
+		static float xs1[1001], ys1[1001];
+		for (int i = 0; i < 1001; ++i) {
+			xs1[i] = i * 0.001f;
+			ys1[i] = 0.5f + 0.5f * sinf(50 * (xs1[i] + (float)ImGui::GetTime() / 10));
+		}
+
+		Widget::simple_graph(0.0f, 1.0f, xs1, ys1, 1001);
+	
+
+
+		ImGui::TableNextRow();
+		ImGui::TableNextColumn();
+		ImGui::Text(" Ground Speed");
+
+
+
+		ImGui::TableNextRow();
+		ImGui::TableNextColumn();
+		ImGui::Text(" Heading");
+
+
+
+		ImGui::TableNextRow();
+		ImGui::TableNextColumn();
+		ImGui::Text(" Battery");
+
+
+
+		ImGui::TableNextRow();
+		ImGui::TableNextColumn();
+		ImGui::Text(" Link Quality");
+
+
+
+		ImGui::TableNextRow();
+		ImGui::TableNextColumn();
+		ImGui::Text(" GPS Status");
+
+
+		ImGui::EndTable();
+		
+		// creating the rounded table border
+		ImVec2 tableMin = ImGui::GetItemRectMin();
+		ImVec2 tableMax = ImGui::GetItemRectMax();
+		drawList->AddRect(tableMin, tableMax, borderColor, rounding, ImDrawFlags_None, borderThickness);
+	}
+
+
 }
 
 void draw_system_status(void) {

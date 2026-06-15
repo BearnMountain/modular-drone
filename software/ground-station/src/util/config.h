@@ -12,8 +12,8 @@
 namespace Config {
 	// CONFIG VARIABLES
 	inline std::string config_file_path;
-	inline u32 window_width = 800;
-	inline u32 window_height = 500;
+	inline u32 window_width  = 160 * 6;
+	inline u32 window_height = 100 * 6;
 
 	// template colors
 

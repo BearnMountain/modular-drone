@@ -1,5 +1,6 @@
 #include "image_loader.h"
 #include <lib/stb/stb_image.h>
+#include "src/util/logger.h"
 
 #include "src/gui/imgui_wrapper/backend_metal_defines.h"
 

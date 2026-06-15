@@ -1,14 +1,14 @@
 #include "widget.h"
-#include "src/assets/image_loader.h"
+#include <implot/implot.h>
+#include <implot/implot_internal.h>
 #include <implot/implot3d.h>
 #include <implot/implot3d_internal.h>
 #include "src/util/logger.h"
 
 #define CORNER_RADIUS 6.0f
 
-bool Widget::icon_button(ImTextureID icon, const char* label, ImVec2 size, bool& selected) {
+bool Widget::icon_button(ImTextureID icon, const char* label, ImVec2 size, f32 padding, bool& selected) {
 	ImGui::PushID(label);
-
 
 	// reservers clickable region
 	ImGui::InvisibleButton("##icon_label", size);
@@ -47,8 +47,6 @@ bool Widget::icon_button(ImTextureID icon, const char* label, ImVec2 size, bool&
 
 	// layout inside button
 	if (icon && !label) { // with just icon
-		// Format is just icon over hte entire button
-		const float padding = 4.0f;
 
 		// max icon size inside button
 		ImVec2 avail = ImVec2(
@@ -82,33 +80,25 @@ bool Widget::icon_button(ImTextureID icon, const char* label, ImVec2 size, bool&
 			image_max
 		);
 	} else if (icon && label) {
-		// sizes
-		float W = max.x - min.x;
-		float H = max.y - min.y;
+		float W = (max.x - min.x) - padding * 2.0f;  // subtract padding
+		float H = (max.y - min.y) - padding * 2.0f;
+		ImVec2 padded_min = ImVec2(min.x + padding, min.y + padding); // offset origin
 
-		// split
 		float icon_h = H * 0.65f;
-
-		// --- ICON (centered in top area) ---
 		float icon_size = icon_h * 0.6f;
-
 		ImVec2 icon_min(
-			min.x + (W - icon_size) * 0.5f,
-			min.y + (icon_h - icon_size) * 0.5f
+			padded_min.x + (W - icon_size) * 0.5f,
+			padded_min.y + (icon_h - icon_size) * 0.5f
 		);
-
 		ImVec2 icon_max(
 			icon_min.x + icon_size,
 			icon_min.y + icon_size
 		);
-
 		draw_list->AddImage(icon, icon_min, icon_max);
 
-		// --- LABEL ---
-		float label_top    = min.y + icon_h;
-		float label_height = max.y - label_top;
-		float label_width  = max.x - min.x;
-
+		float label_top    = padded_min.y + icon_h;
+		float label_height = (max.y - padding) - label_top;  // respect bottom padding
+		float label_width  = W;
 		float base_font_size = ImGui::GetFontSize();
 
 		// 1) Scale by HEIGHT
@@ -174,7 +164,53 @@ void Widget::plot_point_cloud(const f32* xn, const f32* yn, const f32* zn, u32 c
 
 }
 
+void Widget::simple_graph(u32 min, u32 max, const f32* xn, const f32* yn, u32 count) {
 
+	ImPlot::PushStyleVar(ImPlotStyleVar_PlotPadding, ImVec2(2, 2));
+	ImPlot::PushStyleColor(ImPlotCol_PlotBg, ImVec4(0,0,0,0));       // transparent bg
+	ImPlot::PushStyleColor(ImPlotCol_PlotBorder, ImVec4(0,0,0,0));   // <-- removes inner box
+	ImPlotFlags plot_flags = 
+		ImPlotFlags_NoTitle     |
+		ImPlotFlags_NoLegend    |
+		ImPlotFlags_NoMenus     |
+		ImPlotFlags_NoBoxSelect |
+		ImPlotFlags_NoMouseText |
+		ImPlotFlags_NoFrame;
+	ImPlotAxisFlags axis_flags = 
+		ImPlotAxisFlags_NoLabel | 
+		ImPlotAxisFlags_NoDecorations | 
+		ImPlotAxisFlags_NoTickMarks | 
+		ImPlotAxisFlags_NoTickLabels |
+		ImPlotAxisFlags_NoHighlight;
+
+	if (ImPlot::BeginPlot("##miniplot", ImVec2(120, 60), plot_flags)) {
+		ImPlot::SetupAxis(ImAxis_X1, nullptr, axis_flags);
+		ImPlot::SetupAxis(ImAxis_Y1, nullptr, axis_flags | ImPlotAxisFlags_AutoFit);
+		ImPlot::SetupAxisLimits(ImAxis_X1, 0, 1, ImGuiCond_Always);
+
+		// filled area under the line
+		ImPlotSpec spec;
+		spec.FillColor = ImVec4(0.051f, 0.102f, 0.388f, 1.0f);  // RGBA orange
+		spec.FillAlpha = 0.8f;
+		// spec.LineColor = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);  // green line
+		// spec.LineWeight = 2.0f;
+		ImPlot::PlotShaded("##fill", xn, yn, count, -INFINITY, spec); // fills in from line to bottom
+		ImPlot::PlotLine("##line", xn, yn, count);
+
+		ImPlot::EndPlot();
+	}
+
+	// Range label to the right
+	ImGui::SameLine();
+	ImGui::BeginGroup();
+	ImGui::Text("%d", static_cast<i32>(max));
+	ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 25); // text goes to bottom
+	ImGui::Text("%d", static_cast<i32>(min));
+	ImGui::EndGroup();
+
+	ImPlot::PopStyleColor(2);
+	ImPlot::PopStyleVar(1);
+}
 
 
 

@@ -38,8 +38,8 @@ public:
 	void update_gps_status(GPSStatus status);
 	void update_system_status(SystemStatus status);
 private:
-	std::queue<std::pair<f32, f32>> altitude_; // time, altitude
-	std::queue<std::pair<f32, f32>> ground_speed_ms_;
+	std::deque<std::pair<f32, f32>> altitude_; // time, altitude
+	std::deque<std::pair<f32, f32>> ground_speed_ms_;
 	f32 heading_;
 	u8 battery_;
 	u8 link_quality_;
@@ -47,7 +47,7 @@ private:
 
 	// void 
 	void draw_vehicle(void);
-	void draw_telemetry(void);
+	void draw_telemetry(u32 win_width, u32 win_height);
 	void draw_system_status(void);
 	// Options: auto, manual, 
 	void draw_flight_mode(void); 

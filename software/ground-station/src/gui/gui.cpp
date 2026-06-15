@@ -54,10 +54,16 @@ void GUI::draw(SDL_Window* window) {
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 
-	ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoTitleBar | 
-		ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | 
-		ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoBackground;
+	ImGuiWindowFlags window_flags = 
+		ImGuiWindowFlags_NoTitleBar | 
+		ImGuiWindowFlags_NoCollapse | 
+		ImGuiWindowFlags_NoResize | 
+		ImGuiWindowFlags_NoMove | 
+		ImGuiWindowFlags_NoBringToFrontOnFocus | 
+		ImGuiWindowFlags_NoNavFocus | 
+		ImGuiWindowFlags_NoBackground;
 
+	// setting theme colors
 	ImGui::Begin("MasterDockSpaceWindow", nullptr, window_flags);
 	ImGui::PopStyleVar(3);
 
@@ -66,6 +72,9 @@ void GUI::draw(SDL_Window* window) {
 	static bool docker_init = false;
 	if (!docker_init) {
 		docker_init = true;
+
+		ImGuiStyle& style = ImGui::GetStyle();
+		style.Colors[ImGuiCol_DockingEmptyBg] = ImVec4(0.18f, 0.22f, 0.30f, 1);
 
 		ImGui::DockBuilderRemoveNode(dockspace_id);
 		ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_DockSpace);
@@ -93,7 +102,7 @@ void GUI::draw(SDL_Window* window) {
 		);
 
 		ImGuiID navbar_id = ImGui::DockBuilderSplitNode(
-			center_id, ImGuiDir_Left, 0.08f, nullptr, &center_id
+			center_id, ImGuiDir_Left, 0.05f, nullptr, &center_id
 		);
 
 		ImGuiID infobar_id = ImGui::DockBuilderSplitNode(
@@ -153,6 +162,8 @@ void GUI::draw(SDL_Window* window) {
 
 void GUI::event_handler(SDL_Event* event) {
 	Renderer::process_event(event);
+
+	// keybind motions
     switch (event->type) {
         case SDL_EVENT_KEY_DOWN: {
             switch (event->key.key) {
