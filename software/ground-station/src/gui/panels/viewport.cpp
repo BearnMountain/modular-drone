@@ -22,6 +22,7 @@ Viewport::~Viewport(void) {
 void Viewport::draw(void) {
 	ImGui::Begin(name_.c_str());
 
+
 	// static bool checked = false;
 	// ImGui::Checkbox("checkbox", &checked);
 	// if (checked) {

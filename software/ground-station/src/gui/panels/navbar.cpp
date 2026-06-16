@@ -9,12 +9,12 @@ Navbar::Navbar(const std::string name) {
 	name_ = name;
 
 	// loading all icons
-	icons[0] = load_imgui_texture("res/img/widgets/dashboard.png");
-	icons[1] = load_imgui_texture("res/img/widgets/map.png");
-	icons[2] = load_imgui_texture("res/img/widgets/plan.png");
-	icons[3] = load_imgui_texture("res/img/widgets/drone.png");
-	icons[4] = load_imgui_texture("res/img/widgets/log.png");
-	icons[5] = load_imgui_texture("res/img/widgets/setting.png");
+	icons[0] = load_imgui_texture("res/img/widgets/dashboard_white.png");
+	icons[1] = load_imgui_texture("res/img/widgets/map_white.png");
+	icons[2] = load_imgui_texture("res/img/widgets/plan_white.png");
+	icons[3] = load_imgui_texture("res/img/widgets/drone_white.png");
+	icons[4] = load_imgui_texture("res/img/widgets/log_white.png");
+	icons[5] = load_imgui_texture("res/img/widgets/setting_white.png");
 
 	active[0] = true;
 	for (u32 i = 1; i < ICON_COUNT; i++) active[i] = false;
@@ -30,9 +30,12 @@ Navbar::~Navbar(void) {
 }
 
 void Navbar::draw(void) {
+
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(2.5f,2.5f));
 	ImGui::Begin(name_.c_str());
 
-	constexpr f32 padding = 0.5f;
+
+	constexpr f32 padding = 0.0f;
 	ImVec2 avail = ImGui::GetContentRegionAvail();
 	ImVec2 button_size(avail.x - padding, avail.x - padding);
 
@@ -48,24 +51,26 @@ void Navbar::draw(void) {
 		return true;
 	};
 
-	if (Widget::icon_button(icons[0].id, "DASHBOARD", button_size, padding, active[0]))
+	if (Widget::icon_button(icons[0].id, "DASHBOARD", button_size, active[0]))
 		toggle_nav(0);
-	if (Widget::icon_button(icons[1].id, "MAP", 	  button_size, padding, active[1]))
+	if (Widget::icon_button(icons[1].id, "MAP", 	  button_size, active[1]))
 		toggle_nav(1);
-	if (Widget::icon_button(icons[2].id, "PLAN", 	  button_size, padding, active[2]))
+	if (Widget::icon_button(icons[2].id, "PLAN", 	  button_size, active[2]))
 		toggle_nav(2);
-	if (Widget::icon_button(icons[3].id, "VEHICLE",   button_size, padding, active[3]))
+	if (Widget::icon_button(icons[3].id, "VEHICLE",   button_size, active[3]))
 		toggle_nav(3);
-	if (Widget::icon_button(icons[4].id, "LOGS", 	  button_size, padding, active[4]))
+	if (Widget::icon_button(icons[4].id, "LOGS", 	  button_size, active[4]))
 		toggle_nav(4);
 
 	ImGui::SetCursorPosY(
 		avail.y - button_size.y
 	);
-	if (Widget::icon_button(icons[5].id, "SETTINGS",  button_size, padding, active[5]))
+
+	if (Widget::icon_button(icons[5].id, "SETTINGS",  button_size, active[5]))
 		toggle_nav(5);
 
 
+	ImGui::PopStyleVar(1);
 	ImGui::End();
 }
 

@@ -34,14 +34,11 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
 		Log::fatal("failed to create window instance: {}", SDL_GetError());
 		return SDL_APP_FAILURE;
 	}
-	Log::debug("{} {}", Config::window_width, Config::window_height);
 	
 	// window configurations
 	SDL_SetWindowPosition(app_data->window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 	SDL_ShowWindow(app_data->window);
 	SDL_RaiseWindow(app_data->window);
-
-	Log::debug("passed");
 	
 	app_data->gui = std::make_unique<GUI>(
 		app_data->window, 

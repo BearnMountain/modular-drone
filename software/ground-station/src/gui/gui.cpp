@@ -5,6 +5,8 @@
 #include "src/util/defines.h"
 #include "src/util/logger.h"
 #include "src/assets/image_loader.h"
+#include "src/gui/styles/fonts.h"
+#include "src/util/config.h"
 
 GUI::GUI(SDL_Window* window, f32 window_width, f32 window_height) {
 	// setting up imgui
@@ -17,9 +19,12 @@ GUI::GUI(SDL_Window* window, f32 window_width, f32 window_height) {
 		ImGuiConfigFlags_DockingEnable | 
 		ImGuiConfigFlags_NavEnableKeyboard |
 		ImGuiBackendFlags_RendererHasVtxOffset;
-	io.Fonts->AddFontFromFileTTF("res/fonts/JetBrainsMono-Regular.ttf");
 
 	ImGui::StyleColorsDark();
+
+	// loading fonts
+	FontBook::load_font(Config::font_path.c_str());
+	ImGui::PushFont(FontBook::get_font(FONT_SIZE_20PX));
 
 	// giving full window parameters
 	x_ = 0;
@@ -36,6 +41,7 @@ GUI::GUI(SDL_Window* window, f32 window_width, f32 window_height) {
 }
 
 GUI::~GUI() {
+	ImGui::PopFont();
 	Renderer::shutdown();
 	Renderer::free_desc(desc);
 }

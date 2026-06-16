@@ -5,149 +5,99 @@
 #include <implot/implot3d_internal.h>
 #include "src/util/logger.h"
 
+#include "src/gui/styles/fonts.h"
+
 #define CORNER_RADIUS 6.0f
 
-bool Widget::icon_button(ImTextureID icon, const char* label, ImVec2 size, f32 padding, bool& selected) {
-	ImGui::PushID(label);
-
-	// reservers clickable region
-	ImGui::InvisibleButton("##icon_label", size);
-
-	// config for button itself
-	bool hovered = ImGui::IsItemHovered();
-	bool pressed = ImGui::IsItemClicked();
-
-	if (pressed) {
-		selected = !selected;
+bool Widget::icon_button(ImTextureID icon, const char* label, ImVec2 size, bool& selected) {
+	if (icon == (ImTextureID)0) {
+		Log::debug("must pass an icon for this widget");
+		return false;
 	}
 
-	// color
+	if (size.x <= 0.0f || size.y <= 0.0f) {
+		Log::debug("must pass valid size");
+		return false;
+	}
+
+	ImGui::PushID(label);
+
+	// reservers clickable space
+	ImGui::InvisibleButton("##button_icon", size);
+
+	// button coloristics depend on pressed or not
+	bool pressed = ImGui::IsItemClicked();
+	bool hovered = ImGui::IsItemHovered();
+	if (pressed) selected = !selected;
+
 	ImU32 background_color = 
-        selected ? IM_COL32(40, 140, 255, 255) :
+        selected ? IM_COL32(4, 8, 13, 255) :
         hovered  ? IM_COL32(60, 60, 60, 255) :
                    ImGui::GetColorU32(ImGui::GetStyle().Colors[ImGuiCol_WindowBg]);
 	ImU32 border_color = 
-        selected ? IM_COL32(90, 200, 255, 255) :
+        selected ? IM_COL32(14, 51, 93, 255) :
         hovered  ? IM_COL32(150, 150, 150, 255) :
                    IM_COL32(50, 50, 50, 255);
 
-	// drawing ontop of InvisibleButton
-	ImDrawList* draw_list = ImGui::GetWindowDrawList();
-	ImVec2 min = ImGui::GetItemRectMin(); // bound box of parent widget
-	ImVec2 max = ImGui::GetItemRectMax(); // bound box of parent widget
 
-	// background + border
+	// drawing
+	ImDrawList* draw_list = ImGui::GetWindowDrawList();
+	ImVec2 min = ImGui::GetItemRectMin();
+	ImVec2 max = ImGui::GetItemRectMax();
+
+	// drawing border + background
 	draw_list->AddRectFilled(
 		min, max, background_color, CORNER_RADIUS
 	);
 	if (selected)
 		draw_list->AddRect(
-			min, max, border_color, CORNER_RADIUS, ImDrawFlags_RoundCornersAll, 1.0f
+			min, max, border_color, CORNER_RADIUS, ImDrawFlags_RoundCornersAll, 2.0f
 		);
 
-	// layout inside button
-	if (icon && !label) { // with just icon
+	// internal layout
+	if (!label) {
+		Log::debug("todo");
+	} else {
+		// dimensions
+		f32 box_height = max.y - min.y;
 
-		// max icon size inside button
-		ImVec2 avail = ImVec2(
-			(max.x - min.x) - padding * 2.0f,
-			(max.y - min.y) - padding * 2.0f
-		);
+		f32 percentage_icon = 0.7;
 
-		// keep icon square
-		float icon_size = ImMin(avail.x, avail.y);
-		ImVec2 image_size(icon_size, icon_size);
+		// icon
+		f32 icon_zone_height = percentage_icon * box_height;
+		f32 icon_padding = 4.0f; // tweak this
+		f32 icon_height = icon_zone_height - icon_padding * 2.0f;
 
-		// center of the button
-		ImVec2 center = ImVec2(
-			(min.x + max.x) * 0.5f,
-			(min.y + max.y) * 0.5f
-		);
-
-		ImVec2 image_min = ImVec2(
-			center.x - image_size.x * 0.5f,
-			center.y - image_size.y * 0.5f
-		);
-
-		ImVec2 image_max = ImVec2(
-			image_min.x + image_size.x,
-			image_min.y + image_size.y
-		);
+		float icon_x = min.x + (size.x - icon_height) * 0.5f;
+		float icon_y = min.y + icon_padding + (icon_zone_height - icon_height) * 0.5f;
 
 		draw_list->AddImage(
 			icon,
-			image_min,
-			image_max
-		);
-	} else if (icon && label) {
-		float W = (max.x - min.x) - padding * 2.0f;  // subtract padding
-		float H = (max.y - min.y) - padding * 2.0f;
-		ImVec2 padded_min = ImVec2(min.x + padding, min.y + padding); // offset origin
-
-		float icon_h = H * 0.65f;
-		float icon_size = icon_h * 0.6f;
-		ImVec2 icon_min(
-			padded_min.x + (W - icon_size) * 0.5f,
-			padded_min.y + (icon_h - icon_size) * 0.5f
-		);
-		ImVec2 icon_max(
-			icon_min.x + icon_size,
-			icon_min.y + icon_size
-		);
-		draw_list->AddImage(icon, icon_min, icon_max);
-
-		float label_top    = padded_min.y + icon_h;
-		float label_height = (max.y - padding) - label_top;  // respect bottom padding
-		float label_width  = W;
-		float base_font_size = ImGui::GetFontSize();
-
-		// 1) Scale by HEIGHT
-		float scale_h = label_height / base_font_size;
-
-		// 2) Scale by WIDTH
-		ImVec2 full_text_size = ImGui::CalcTextSize(label);
-		float scale_w = label_width / full_text_size.x;
-
-		// 3) Pick smallest scale
-		float font_scale = ImMin(scale_h, scale_w);
-		font_scale = ImClamp(font_scale, 0.5f, 1.0f);
-
-		float font_size = base_font_size * font_scale;
-
-		// recompute text size with final scale
-		ImVec2 text_size = full_text_size * font_scale;
-
-		// centered inside label area
-		ImVec2 text_pos(
-			min.x + (label_width - text_size.x) * 0.5f,
-			label_top + (label_height - text_size.y) * 0.5f
+			ImVec2(icon_x, icon_y),
+			ImVec2(icon_x + icon_height, icon_y + icon_height)
 		);
 
-		// clip ONLY the label region
-		draw_list->PushClipRect(
-			ImVec2(min.x, label_top),
-			max,
-			true
-		);
+		// font
+		ImGui::PushFont(FontBook::get_font(FONT_SIZE_9PX));
+		ImVec2 text_size = ImGui::CalcTextSize(label);
 
+        f32 label_zone_top = min.y + icon_zone_height;
+		f32 label_zone_height = box_height * (1.0f - percentage_icon);
 		draw_list->AddText(
-			ImGui::GetFont(),
-			font_size,
-			text_pos,
-			IM_COL32(180,180,180,255),
+			ImVec2(
+				min.x + (size.x - text_size.x) * 0.5f,
+				label_zone_top + (label_zone_height - text_size.y) * 0.5f
+			),
+			IM_COL32(255, 255, 255, 255),
 			label
 		);
+		ImGui::PopFont();
 
-		draw_list->PopClipRect();
-	} else {
-		Log::debug("cant create just a button with a label, must have icon or label and icon");
 	}
 
 	ImGui::PopID();
-
 	return pressed;
 }
-
 
 void Widget::plot_point_cloud(const f32* xn, const f32* yn, const f32* zn, u32 count) {
 	if (ImPlot3D::BeginPlot("Scatter Plots")) {
