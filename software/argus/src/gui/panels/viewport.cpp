@@ -1,6 +1,5 @@
 #include "viewport.h"
 #include "implot/implot.h"
-#include "src/gui/widgets/widget.h"
 #include "src/util/logger.h"
 
 #include <random>
@@ -10,13 +9,9 @@ Viewport::Viewport(const std::string name) {
 
 	name_ = name;
 	id_ = 0;
-	textures.push_back(
-		load_imgui_texture("res/img/widgets/question.png")
-	);
 }
 
 Viewport::~Viewport(void) {
-	unload_texture(textures[0]);
 }
 
 void Viewport::draw(void) {

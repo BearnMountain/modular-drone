@@ -4,7 +4,7 @@
 #include "imgui_wrapper/render_wrapper.h"
 #include "src/util/defines.h"
 #include "src/util/logger.h"
-#include "src/assets/image_loader.h"
+#include "src/assets/asset_manager.h"
 #include "src/gui/styles/fonts.h"
 #include "src/util/config.h"
 
@@ -38,9 +38,13 @@ GUI::GUI(SDL_Window* window, f32 window_width, f32 window_height) {
 	titlebar = std::make_unique<Titlebar>("titlebar");
 	statusbar = std::make_unique<Statusbar>("statusbar");
 	toolbar = std::make_unique<Toolbar>("toolbar");
+
+	// loading textures
+	AssetManager::load_darkmode_icons();
 }
 
 GUI::~GUI() {
+	AssetManager::unload_darkmode_icons();
 	ImGui::PopFont();
 	Renderer::shutdown();
 	Renderer::free_desc(desc);
@@ -104,7 +108,7 @@ void GUI::draw(SDL_Window* window) {
 
 		// Setting space for each panel
 		ImGuiID titlebar_id = ImGui::DockBuilderSplitNode(
-			center_id, ImGuiDir_Up, 0.08f, nullptr, &center_id
+			center_id, ImGuiDir_Up, 0.10f, nullptr, &center_id
 		);
 
 		ImGuiID navbar_id = ImGui::DockBuilderSplitNode(

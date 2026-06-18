@@ -17,5 +17,5 @@ public:
 	void draw(void) override;
 	void configure(void) override;
 private:
-	std::vector<Texture> textures;
+
 };

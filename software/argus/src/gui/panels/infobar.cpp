@@ -33,7 +33,6 @@ void Infobar::draw(void) {
 	draw_telemetry(window_width, telemetry_h);
 
 
-
 	ImGui::BeginChild("System Status", ImVec2(0, system_status_h), ImGuiChildFlags_Borders);
 	ImGui::Text("test");
 	ImGui::EndChild();
@@ -123,6 +122,11 @@ void Infobar::draw_telemetry(u32 win_width, u32 win_height) {
 		ImGui::TableNextRow();
 		ImGui::TableNextColumn();
 		ImGui::Text(" GPS Status");
+
+		ImGui::TableNextRow();
+		ImGui::TableNextColumn();
+		ImGui::Text(" Wind Speed");
+
 
 
 		ImGui::EndTable();

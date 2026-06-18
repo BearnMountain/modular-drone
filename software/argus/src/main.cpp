@@ -29,7 +29,12 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char** argv) {
 #elif RENDERER_BACKEND_VULKAN
 	window_flags |= SDL_WINDOW_VULKAN;
 #endif
-	app_data->window = SDL_CreateWindow("Argus", Config::window_width, Config::window_height, window_flags);
+	app_data->window = SDL_CreateWindow(
+		"Argus", 
+		Config::window_width, 
+		Config::window_height, 
+		window_flags
+	);
 	if (!app_data->window) {
 		Log::fatal("failed to create window instance: {}", SDL_GetError());
 		return SDL_APP_FAILURE;
