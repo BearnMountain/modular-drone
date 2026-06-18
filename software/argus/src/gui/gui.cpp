@@ -23,7 +23,8 @@ GUI::GUI(SDL_Window* window, f32 window_width, f32 window_height) {
 	ImGui::StyleColorsDark();
 
 	// loading fonts
-	FontBook::load_font(Config::font_path.c_str());
+	FontBook::load_font(Config::regular_font_path.c_str());
+	FontBook::load_font(Config::bold_font_path.c_str());
 	ImGui::PushFont(FontBook::get_font(FONT_SIZE_20PX));
 
 	// giving full window parameters
@@ -108,7 +109,7 @@ void GUI::draw(SDL_Window* window) {
 
 		// Setting space for each panel
 		ImGuiID titlebar_id = ImGui::DockBuilderSplitNode(
-			center_id, ImGuiDir_Up, 0.10f, nullptr, &center_id
+			center_id, ImGuiDir_Up, 0.08f, nullptr, &center_id
 		);
 
 		ImGuiID navbar_id = ImGui::DockBuilderSplitNode(

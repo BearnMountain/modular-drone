@@ -91,7 +91,7 @@ void Infobar::draw_telemetry(u32 win_width, u32 win_height) {
 			ys1[i] = 0.5f + 0.5f * sinf(50 * (xs1[i] + (float)ImGui::GetTime() / 10));
 		}
 
-		Widget::simple_graph(0.0f, 1.0f, xs1, ys1, 1001);
+		//Widget::simple_graph(0.0f, 1.0f, xs1, ys1, 1001);
 	
 
 

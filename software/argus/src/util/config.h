@@ -16,7 +16,8 @@ namespace Config {
 	inline u32 window_height = 100 * 6;
 
 	// ---- Styling Customizations ----
-	inline std::string font_path = "res/fonts/JetBrainsMono-Regular.ttf";
+	inline std::string regular_font_path = "res/fonts/JetBrainsMono-Regular.ttf";
+	inline std::string bold_font_path = "res/fonts/JetBrainsMono-Bold.ttf";
 
 	// template colors
 

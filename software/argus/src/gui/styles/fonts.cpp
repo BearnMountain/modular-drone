@@ -16,38 +16,28 @@ static std::vector<ImFont*> font_book_;
 // [FontSize::UNIQUE_FONT_SIZES + 1] next font
 
 void FontBook::load_font(const char* file_path) {
-	current_font_ = font_book_.size();
-	font_paths_.push_back(file_path);
+    ImGuiIO& io = ImGui::GetIO();
 
-	// adds all sizes of the font
-	ImGuiIO& io = ImGui::GetIO();
-	font_book_.push_back(
-		io.Fonts->AddFontFromFileTTF(file_path, 9.0f)
-	);
-	font_book_.push_back(
-		io.Fonts->AddFontFromFileTTF(file_path, 12.0f)
-	);
-	font_book_.push_back(
-		io.Fonts->AddFontFromFileTTF(file_path, 14.0f)
-	);
-	font_book_.push_back(
-		io.Fonts->AddFontFromFileTTF(file_path, 16.0f)
-	);
-	font_book_.push_back(
-		io.Fonts->AddFontFromFileTTF(file_path, 18.0f)
-	);
-	font_book_.push_back(
-		io.Fonts->AddFontFromFileTTF(file_path, 20.0f)
-	);
+    // font family index
+    const i32 font_index = font_paths_.size();
+    font_paths_.push_back(file_path);
 
-	if (current_font_size_ == FontSizes::UNIQUE_FONT_SIZES) {
-		current_font_size_ = FontSizes::FONT_SIZE_20PX;
-		ImGui::PushFont(font_book_[current_font_size_]);
-	}
+    // add all sizes (order MUST match enum)
+    font_book_.push_back(io.Fonts->AddFontFromFileTTF(file_path, 9.0f));   // 0
+    font_book_.push_back(io.Fonts->AddFontFromFileTTF(file_path, 12.0f));  // 1
+    font_book_.push_back(io.Fonts->AddFontFromFileTTF(file_path, 14.0f));  // 2
+    font_book_.push_back(io.Fonts->AddFontFromFileTTF(file_path, 16.0f));  // 3
+    font_book_.push_back(io.Fonts->AddFontFromFileTTF(file_path, 18.0f));  // 4
+    font_book_.push_back(io.Fonts->AddFontFromFileTTF(file_path, 20.0f));  // 5
 
+    // first loaded font becomes active
+    if (current_font_ == -1) {
+        current_font_ = font_index;
+        current_font_size_ = FontSizes::FONT_SIZE_20PX;
+        ImGui::PushFont(get_font(current_font_size_));
+    }
 
-
-	io.Fonts->Build();
+    io.Fonts->Build();
 }
 
 const std::vector<std::string>& FontBook::get_font_list(void) {
@@ -55,9 +45,9 @@ const std::vector<std::string>& FontBook::get_font_list(void) {
 }
 
 void FontBook::set_font(std::string_view font) {
-	for (u32 i = 0; i < font_paths_.size(); i += static_cast<u32>(FontSizes::UNIQUE_FONT_SIZES)) {
+	for (u32 i = 0; i < font_paths_.size(); i++) {
 		if (font_paths_[i] == font) {
-			current_font_ = i;
+			current_font_ = i*UNIQUE_FONT_SIZES;
 			return;
 		}
 	}
