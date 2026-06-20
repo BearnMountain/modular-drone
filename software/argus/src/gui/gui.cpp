@@ -86,6 +86,8 @@ void GUI::draw(SDL_Window* window) {
 
 		ImGuiStyle& style = ImGui::GetStyle();
 		style.Colors[ImGuiCol_DockingEmptyBg] = ImVec4(0.18f, 0.22f, 0.30f, 1);
+		style.Colors[ImGuiCol_Border]       = ImVec4(0, 0, 0, 0);
+		style.Colors[ImGuiCol_BorderShadow] = ImVec4(0, 0, 0, 0);
 
 		ImGui::DockBuilderRemoveNode(dockspace_id);
 		ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_DockSpace);
@@ -111,6 +113,7 @@ void GUI::draw(SDL_Window* window) {
 		ImGuiID titlebar_id = ImGui::DockBuilderSplitNode(
 			center_id, ImGuiDir_Up, 0.08f, nullptr, &center_id
 		);
+
 
 		ImGuiID navbar_id = ImGui::DockBuilderSplitNode(
 			center_id, ImGuiDir_Left, 0.05f, nullptr, &center_id
@@ -159,10 +162,10 @@ void GUI::draw(SDL_Window* window) {
 	ImGui::DockSpace(dockspace_id, ImVec2(0, 0), ImGuiDockNodeFlags_None);
 
 	// each panel now renders on its own
+	titlebar->draw();
 	navbar->draw();
 	viewport->draw();
 	infobar->draw();
-	titlebar->draw();
 	statusbar->draw();
 	toolbar->draw();
 

@@ -41,10 +41,20 @@ titlebar:
 
 void Titlebar::draw(void) {
 
+	ImGui::PushStyleColor(ImGuiCol_Border, IM_COL32(255, 0, 0, 255));
 	ImGui::Begin(name_.c_str());
 
 	ImDrawList* draw_list = ImGui::GetWindowDrawList();
 	ImVec2 size = ImGui::GetWindowSize();
+
+	// draw entire boarder
+	draw_list->AddLine(
+		ImVec2(0.0f, size.y),
+		ImVec2(size.x, size.y),
+		IM_COL32(255, 255, 255, 255),
+		5.0f
+	);
+
 	
 	f32 padding = size.y * 0.20f;
 
@@ -129,8 +139,8 @@ void Titlebar::draw(void) {
 	// alert 
 	// profile
 
-
 	ImGui::End();
+	ImGui::PopStyleColor();
 }
 
 void Titlebar::configure(void) {
@@ -139,8 +149,9 @@ void Titlebar::configure(void) {
 		return;
 	}
 
-	if (ImGuiDockNode* node = ImGui::DockBuilderGetNode(id_))
+	if (ImGuiDockNode* node = ImGui::DockBuilderGetNode(id_)) {
 		node->LocalFlags |= ImGuiDockNodeFlags_NoTabBar;
+	}
 	else 
 		Log::error("ImGuiID '{}' doesn't exist(Titlebar)", id_);
 }

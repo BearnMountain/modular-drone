@@ -18,13 +18,24 @@ Navbar::~Navbar(void) {
 
 void Navbar::draw(void) {
 
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(2.5f,2.5f));
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(4.0f,4.0f));
 	ImGui::Begin(name_.c_str());
 
 
 	constexpr f32 padding = 0.0f;
 	ImVec2 avail = ImGui::GetContentRegionAvail();
 	ImVec2 button_size(avail.x - padding, avail.x - padding);
+	ImDrawList* draw_list = ImGui::GetWindowDrawList();
+
+	// draws border
+	ImVec2 pos = ImGui::GetWindowPos();
+	ImVec2 size = ImGui::GetWindowSize();
+	draw_list->AddLine(
+		ImVec2(size.x - 1.0f, pos.y),
+		ImVec2(size.x - 1.0f, pos.y + size.y),
+		IM_COL32(255, 255, 255, 255),
+		3.0f
+	);
 
 	// center cursor
 	ImGui::SetCursorPosX(

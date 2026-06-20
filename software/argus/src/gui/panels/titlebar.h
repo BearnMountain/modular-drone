@@ -3,7 +3,6 @@
 // top of application
 
 #include "src/gui/panels/panel.h"
-#include "src/assets/image_loader.h"
 
 class Titlebar : public Panel {
 public:
