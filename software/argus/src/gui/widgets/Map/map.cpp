@@ -15,3 +15,22 @@
 //     return [x, y];
 //   }
 // }
+
+Map::Map(Renderer::BackendInitDesc* desc, ImVec2 min, ImVec2 max) {
+	avatar_ = std::make_unique<MapAvatar>(GeoCoord(0.0f,0.0f));
+	desc_ = desc;
+	pmin_ = min;
+	pmax_ = max;
+}
+
+Map::~Map(void) {
+
+}
+
+void Map::draw(void) {
+
+	ImGui::Image(
+		create_map_texture(), 
+		ImVec2(100.0f, 100.0f)
+	);
+}

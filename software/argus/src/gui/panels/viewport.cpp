@@ -1,14 +1,19 @@
 #include "viewport.h"
-#include "implot/implot.h"
+// #include "implot/implot.h"
 #include "src/util/logger.h"
 
-#include <random>
 
-Viewport::Viewport(const std::string name) {
+Viewport::Viewport(const std::string name, Renderer::BackendInitDesc* desc) {
 	Log::debug("viewport initialized");
 
 	name_ = name;
+	desc_ = desc;
 	id_ = 0;
+	// map_ = std::make_unique<Map>(
+	// 	desc_,
+	// 	ImVec2(0.0f, 0.0f),
+	// 	ImVec2(10.0f, 10.0f)
+	// );
 }
 
 Viewport::~Viewport(void) {
@@ -16,7 +21,6 @@ Viewport::~Viewport(void) {
 
 void Viewport::draw(void) {
 	ImGui::Begin(name_.c_str());
-
 
 	// static bool checked = false;
 	// ImGui::Checkbox("checkbox", &checked);

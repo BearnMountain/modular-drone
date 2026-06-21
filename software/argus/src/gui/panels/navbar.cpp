@@ -34,7 +34,7 @@ void Navbar::draw(void) {
 		ImVec2(size.x - 1.0f, pos.y),
 		ImVec2(size.x - 1.0f, pos.y + size.y),
 		IM_COL32(255, 255, 255, 255),
-		3.0f
+		1.0f
 	);
 
 	// center cursor

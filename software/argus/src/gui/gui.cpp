@@ -33,7 +33,7 @@ GUI::GUI(SDL_Window* window, f32 window_width, f32 window_height) {
 	width_ = window_width;
 	height_ = window_height;
 
-	viewport = std::make_unique<Viewport>("viewport");
+	viewport = std::make_unique<Viewport>("viewport", desc);
 	navbar = std::make_unique<Navbar>("navbar");
 	infobar = std::make_unique<Infobar>("infobar");
 	titlebar = std::make_unique<Titlebar>("titlebar");
@@ -86,8 +86,12 @@ void GUI::draw(SDL_Window* window) {
 
 		ImGuiStyle& style = ImGui::GetStyle();
 		style.Colors[ImGuiCol_DockingEmptyBg] = ImVec4(0.18f, 0.22f, 0.30f, 1);
-		style.Colors[ImGuiCol_Border]       = ImVec4(0, 0, 0, 0);
+		style.Colors[ImGuiCol_Border] = ImVec4(0, 0, 0, 0);
 		style.Colors[ImGuiCol_BorderShadow] = ImVec4(0, 0, 0, 0);
+		style.DockingSeparatorSize = 0.0f;
+		style.WindowBorderSize     = 0.0f;
+		style.ChildBorderSize      = 0.0f;
+		style.FrameBorderSize      = 0.0f;
 
 		ImGui::DockBuilderRemoveNode(dockspace_id);
 		ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_DockSpace);

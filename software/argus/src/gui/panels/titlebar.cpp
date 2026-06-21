@@ -49,10 +49,10 @@ void Titlebar::draw(void) {
 
 	// draw entire boarder
 	draw_list->AddLine(
-		ImVec2(0.0f, size.y),
-		ImVec2(size.x, size.y),
+		ImVec2(0.0f, size.y-1.0f),
+		ImVec2(size.x, size.y-1.0f),
 		IM_COL32(255, 255, 255, 255),
-		5.0f
+		1.0f
 	);
 
 	
@@ -108,7 +108,7 @@ void Titlebar::draw(void) {
 	// );
 
 	FontBook::set_font(Config::bold_font_path);
-	draw_info_header("LATTICE", "MISSION CONTROL",  app_name_x);
+	draw_info_header("ARGUS", "MISSION CONTROL",  app_name_x);
 	FontBook::set_font(Config::regular_font_path);
 	draw_info_header("MISSION", "Operation #1", 	mission_x);
 	draw_info_header("STATUS", 	"In Progress", 		status_x);
@@ -150,7 +150,8 @@ void Titlebar::configure(void) {
 	}
 
 	if (ImGuiDockNode* node = ImGui::DockBuilderGetNode(id_)) {
-		node->LocalFlags |= ImGuiDockNodeFlags_NoTabBar;
+		node->LocalFlags |= ImGuiDockNodeFlags_NoTabBar 
+			| ImGuiDockNodeFlags_NoResize;
 	}
 	else 
 		Log::error("ImGuiID '{}' doesn't exist(Titlebar)", id_);

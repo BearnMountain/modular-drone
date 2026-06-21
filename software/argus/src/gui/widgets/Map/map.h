@@ -2,6 +2,8 @@
 #include "src/util/defines.h"
 #include <imgui/imgui.h>
 #include "map_avatar.h"
+#include "src/gui/imgui_wrapper/render_wrapper.h"
+#include <memory>
 
 /*
 ImGui encapsulated widget for rendering to .pbf file maps
@@ -19,7 +21,7 @@ public:
 	 * @param min upper left hand window pixel coordinate
 	 * @param max lower right hand window pixel coordinates
 	 */
-	Map(ImVec2 min, ImVec2 max);
+	Map(Renderer::BackendInitDesc* desc, ImVec2 min, ImVec2 max);
 	~Map(void);
 
 	/**
@@ -82,8 +84,12 @@ public:
 
 
 private:
-	MapAvatar avatar_;
+	std::unique_ptr<MapAvatar> avatar_;
 
 	ImVec2 pmin_, pmax_; // window pixel coords
 	GeoCoord geomin_, geomax_; // coordinates fo where map is zoomed into
+
+	// rendering
+	Renderer::BackendInitDesc* desc_;
+	ImTextureID create_map_texture(void);
 };
